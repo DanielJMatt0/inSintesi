@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from src.database import engine
 from src.models import Base
+from src.routers import question
 
 
 # Initialize database
@@ -10,6 +11,7 @@ Base.metadata.create_all(bind=engine)
 app = FastAPI(title="inSintesi API", version="1.0")
 
 # Include routers
+app.include_router(question.router, prefix="/question", tags=["Questions"])
 
 
 if __name__ == "__main__":
