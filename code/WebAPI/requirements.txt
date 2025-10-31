@@ -1,4 +1,6 @@
-fastapi
-uvicorn
-pydantic-settings
+fastapi==0.109.0
+uvicorn[standard]==0.23.2
 sqlalchemy
+pymysql==1.1.1
+pydantic[email]==2.3.0
+python-dotenv==1.0.0
