@@ -1,13 +1,17 @@
 <template>
   <div>
     <!-- Topic -->
-    <ReportSection title="Topic" description="Main question analyzed by participants">
+    <ReportSection
+      title="Topic"
+      description="Main question analyzed by participants"
+    >
       <div>
         <p class="text-lg font-medium text-gray-800">
           {{ data.topic }}
         </p>
         <p class="text-sm text-gray-500 mt-1">
-          Created: {{ formatDate(data.created_at) }} · Updated: {{ formatDate(data.updated_at) }}
+          Created: {{ formatDate(data.created_at) }} · Updated:
+          {{ formatDate(data.updated_at) }}
         </p>
       </div>
     </ReportSection>
@@ -17,8 +21,7 @@
       title="Option Comparison"
       description="Comparison between available options and their support levels"
     >
-      <Bar :data="chartData"
-:options="chartOptions" />
+      <Bar :data="chartData" :options="chartOptions" />
     </ReportSection>
 
     <!-- Reasons -->
@@ -37,8 +40,7 @@
             {{ option }}
           </p>
           <ul class="list-disc pl-6 text-sm text-gray-700 space-y-1">
-            <li
-v-for="(reason, i) in reasons" :key="i">
+            <li v-for="(reason, i) in reasons" :key="i">
               {{ reason }}
             </li>
           </ul>
@@ -47,19 +49,16 @@ v-for="(reason, i) in reasons" :key="i">
     </ReportSection>
 
     <!-- Summary -->
-    <ReportSection v-if="data.summary"
-title="Summary">
-      <div class="prose max-w-none"
-v-html="renderMarkdown(data.summary)"
-/>
+    <ReportSection v-if="data.summary" title="Summary">
+      <div class="prose max-w-none" v-html="renderMarkdown(data.summary)" />
     </ReportSection>
 
     <!-- Recommendation -->
-    <ReportSection v-if="data.recommendation"
-title="Recommendation">
-      <div class="prose max-w-none"
-v-html="renderMarkdown(data.recommendation)"
-/>
+    <ReportSection v-if="data.recommendation" title="Recommendation">
+      <div
+        class="prose max-w-none"
+        v-html="renderMarkdown(data.recommendation)"
+      />
     </ReportSection>
 
     <!-- AI Thought -->
@@ -68,41 +67,39 @@ v-html="renderMarkdown(data.recommendation)"
       title="AI Thought"
       description="Internal reasoning trace of the AI model"
     >
-      <div class="prose max-w-none"
-v-html="renderMarkdown(data.ai_thought)"
-/>
+      <div class="prose max-w-none" v-html="renderMarkdown(data.ai_thought)" />
     </ReportSection>
   </div>
 </template>
 
 <script setup>
-import ReportSection from '../ReportSection.vue'
-import { formatDate, useMarkdown } from '../../utils/formatters'
-import { computed } from 'vue'
-import { Bar } from 'vue-chartjs'
-import { ChartJS } from '../../plugins/chart'
+import ReportSection from "../ReportSection.vue";
+import { formatDate, useMarkdown } from "../../utils/formatters";
+import { computed } from "vue";
+import { Bar } from "vue-chartjs";
+import { ChartJS } from "../../plugins/chart";
 
-const { renderMarkdown } = useMarkdown()
+const { renderMarkdown } = useMarkdown();
 
 const props = defineProps({
   data: { type: Object, required: true },
-})
+});
 
 /* Chart data */
 const chartData = computed(() => {
-  const dist = props.data.distribution_and_options || {}
-  const options = dist.options || []
-  const votes = dist.votes || {}
+  const dist = props.data.distribution_and_options || {};
+  const options = dist.options || [];
+  const votes = dist.votes || {};
   return {
     labels: options,
     datasets: [
       {
         label: null,
-        data: options.map(opt => votes[opt] ?? 0),
+        data: options.map((opt) => votes[opt] ?? 0),
       },
     ],
-  }
-})
+  };
+});
 
 /* Chart options */
 const chartOptions = {
@@ -110,19 +107,21 @@ const chartOptions = {
   maintainAspectRatio: false,
   plugins: {
     legend: { display: false },
-    title: { display: true, text: 'Option Comparison Results' },
+    title: { display: true, text: "Option Comparison Results" },
     tooltip: {
       callbacks: {
-        title: ctx => ctx[0]?.label ?? '',
-        label: ctx => {
-          const label = ctx.dataset.label || 'Support'
-          const value = ctx.parsed.y ?? ctx.parsed
-          return `${label}: ${value}`
+        title: (ctx) => ctx[0]?.label ?? "",
+        label: (ctx) => {
+          const label = ctx.dataset.label || "Support";
+          const value = ctx.parsed.y ?? ctx.parsed;
+          return `${label}: ${value}`;
         },
-        afterLabel: ctx => {
-          const total = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0) || 0
-          const pct = total > 0 ? ((ctx.parsed.y / total) * 100).toFixed(1) + '%' : ''
-          return pct
+        afterLabel: (ctx) => {
+          const total =
+            ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0) || 0;
+          const pct =
+            total > 0 ? ((ctx.parsed.y / total) * 100).toFixed(1) + "%" : "";
+          return pct;
         },
       },
     },
@@ -130,11 +129,13 @@ const chartOptions = {
   scales: {
     y: { beginAtZero: true },
   },
-}
+};
 
 /* Check if reasons exist */
 const hasReasons = computed(() => {
-  const reasons = props.data.reasons
-  return reasons && typeof reasons === 'object' && Object.keys(reasons).length > 0
-})
+  const reasons = props.data.reasons;
+  return (
+    reasons && typeof reasons === "object" && Object.keys(reasons).length > 0
+  );
+});
 </script>

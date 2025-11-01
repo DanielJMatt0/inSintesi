@@ -30,9 +30,9 @@ defineProps({
   description: {
     // Optional
     type: String,
-    default: '',
+    default: "",
   },
-})
+});
 </script>
 
 <style scoped>

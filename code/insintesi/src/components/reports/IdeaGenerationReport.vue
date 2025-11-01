@@ -1,13 +1,17 @@
 <template>
   <div>
     <!-- Topic -->
-    <ReportSection title="Topic" description="Main subject of the idea generation process">
+    <ReportSection
+      title="Topic"
+      description="Main subject of the idea generation process"
+    >
       <div>
         <p class="text-lg font-medium text-gray-800">
           {{ data.topic }}
         </p>
         <p class="text-sm text-gray-500 mt-1">
-          Created: {{ formatDate(data.created_at) }} · Updated: {{ formatDate(data.updated_at) }}
+          Created: {{ formatDate(data.created_at) }} · Updated:
+          {{ formatDate(data.updated_at) }}
         </p>
       </div>
     </ReportSection>
@@ -30,8 +34,7 @@
           </p>
 
           <!-- Summary -->
-          <p v-if="theme.summary"
-class="text-sm text-gray-600 mt-1">
+          <p v-if="theme.summary" class="text-sm text-gray-600 mt-1">
             {{ theme.summary }}
           </p>
 
@@ -40,8 +43,7 @@ class="text-sm text-gray-600 mt-1">
             v-if="theme.ideas && theme.ideas.length"
             class="list-disc pl-6 text-sm text-gray-700 mt-2"
           >
-            <li v-for="(idea, i) in theme.ideas"
-:key="i">
+            <li v-for="(idea, i) in theme.ideas" :key="i">
               {{ idea }}
             </li>
           </ul>
@@ -55,9 +57,7 @@ class="text-sm text-gray-600 mt-1">
       title="Summary"
       description="AI-generated synthesis of all ideas"
     >
-      <div class="prose max-w-none"
-v-html="renderMarkdown(data.summary)"
-/>
+      <div class="prose max-w-none" v-html="renderMarkdown(data.summary)" />
     </ReportSection>
 
     <!-- Recommendation -->
@@ -66,9 +66,10 @@ v-html="renderMarkdown(data.summary)"
       title="Recommendation"
       description="Suggested next steps or actions based on generated ideas"
     >
-      <div class="prose max-w-none"
-v-html="renderMarkdown(data.recommendation)"
-/>
+      <div
+        class="prose max-w-none"
+        v-html="renderMarkdown(data.recommendation)"
+      />
     </ReportSection>
 
     <!-- AI Thought -->
@@ -77,26 +78,24 @@ v-html="renderMarkdown(data.recommendation)"
       title="AI Thought"
       description="Internal reasoning trace of the AI model"
     >
-      <div class="prose max-w-none"
-v-html="renderMarkdown(data.ai_thought)"
-/>
+      <div class="prose max-w-none" v-html="renderMarkdown(data.ai_thought)" />
     </ReportSection>
   </div>
 </template>
 
 <script setup>
-import ReportSection from '../ReportSection.vue'
-import { formatDate, useMarkdown } from '../../utils/formatters'
-import { computed } from 'vue'
+import ReportSection from "../ReportSection.vue";
+import { formatDate, useMarkdown } from "../../utils/formatters";
+import { computed } from "vue";
 
-const { renderMarkdown } = useMarkdown()
+const { renderMarkdown } = useMarkdown();
 
 const props = defineProps({
   data: { type: Object, required: true },
-})
+});
 
 const hasThemes = computed(() => {
-  const themes = props.data.themes
-  return themes && typeof themes === 'object' && Object.keys(themes).length > 0
-})
+  const themes = props.data.themes;
+  return themes && typeof themes === "object" && Object.keys(themes).length > 0;
+});
 </script>
