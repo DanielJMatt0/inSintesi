@@ -40,3 +40,25 @@ export interface QuestionResponse {
   created_at: string
   updated_at?: string | null
 }
+
+export interface QuestionCreate {
+  content: string
+  team_lead_id: number
+  question_type_id: number
+  token_type: string
+  teams_ids: number[]
+  users_ids?: number[] | null
+  expires_at?: string | null
+}
+
+export interface QuestionCreateResponse {
+  question: QuestionResponse
+  tokens: string[]
+}
+
+export interface QuestionResponse {
+  id: number
+  content: string
+  created_at: string
+  updated_at?: string | null
+}
