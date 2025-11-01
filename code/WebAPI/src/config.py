@@ -6,7 +6,7 @@ load_dotenv()
 
 # Database configuration
 
-DATABASE_URL = "mysql+pymysql://root:@localhost:3306/inSintesi"
+DATABASE_URL = os.getenv("DATABASE_URL")
 
 # Mistral API configuration
 MISTRAL_API_KEY = os.getenv("MISTRAL_API_KEY")
