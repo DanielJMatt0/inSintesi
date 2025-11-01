@@ -35,7 +35,7 @@ def list_my_teams(
     """List all teams owned by the logged-in team lead."""
     teams = crud.list_teams(db, lead.id)
     return [
-        {"id": t.id, "name": t.team.name,"team_lead_id": t.team_lead_id, "users_ids": [u.id for u in t.users]}
+        {"id": t.id, "name": t.name,"team_lead_id": t.team_lead_id, "users_ids": [u.id for u in t.users]}
         for t in teams
     ]
 
