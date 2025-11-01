@@ -150,7 +150,11 @@ def run_analysis(question_id: int, db: Session = Depends(get_db),current_lead=De
 # PUT /analyze/{question_id} — Force re-analysis (overwrite)
 # ---------------------------------------------------------------------
 @router.put("/{question_id}", response_model=AnalyzeResponse)
-def update_analysis(question_id: int, db: Session = Depends(get_db),current_lead=Depends(get_current_team_lead)):
+def update_analysis(
+    question_id: int,
+    db: Session = Depends(get_db),
+    current_lead=Depends(get_current_team_lead)
+):
     """
     Re-run the AI analysis for an existing question.
 
@@ -171,11 +175,25 @@ def update_analysis(question_id: int, db: Session = Depends(get_db),current_lead
     if not question.question_type or not question.question_type.type:
         raise HTTPException(status_code=400, detail="Question type not defined.")
 
-    # Optionally delete old report record before re-running
-    question.report_id = None
-    db.commit()
+    # ------------------------------------------------------
+    # DELETE OLD REPORT if it exists
+    # ------------------------------------------------------
+    if question.report_id:
+        model_class = MODEL_MAP.get(question.question_type.type)
+        if model_class:
+            old_report = db.query(model_class).filter(model_class.id == question.report_id).first()
+            if old_report:
+                db.delete(old_report)
+                db.commit()
 
+        question.report_id = None
+        db.commit()
+
+    # ------------------------------------------------------
+    # RE-RUN AI ANALYSIS
+    # ------------------------------------------------------
     return _run_ai_analysis(db, question)
+
 
 
 # ---------------------------------------------------------------------
