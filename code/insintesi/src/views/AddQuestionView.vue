@@ -255,7 +255,9 @@ const handleSubmit = async () => {
     const res = await createQuestion(payload)
 
     if (form.token_type === "universal" && res.tokens.length > 0) {
-      generatedToken.value = res.tokens[0]
+      if (res.tokens[0] != undefined) {
+        generatedToken.value = res.tokens[0]
+      }
       showTokenModal.value = true
     } else {
       showTeamModal.value = true
