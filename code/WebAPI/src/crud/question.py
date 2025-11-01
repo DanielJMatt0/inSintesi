@@ -49,7 +49,7 @@ def create_question(db: Session, question_data: schemas.QuestionCreate, lead_id:
                 token_value=token_value,
                 question_id=question.id,
                 expires_at=token_expires_at,
-                used=False,
+                used=None,
             )
         )
         tokens.append(token_value)
