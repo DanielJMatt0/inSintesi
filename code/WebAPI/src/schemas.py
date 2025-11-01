@@ -1,6 +1,6 @@
 from typing import List, Optional
 from datetime import datetime
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, field_validator
 from pydantic import Field
 
 # -------------------------
@@ -120,6 +120,17 @@ class QuestionCreate(QuestionBase):
     token_type: str
     teams_ids: List[int]
     users_ids: Optional[List[int]] = Field(default_factory=list)
+    token_type: str
+    expires_at: Optional[datetime] = None
+
+    @field_validator("expires_at")
+    def validate_expiration(cls, v):
+        if v and v < datetime.utcnow():
+            raise ValueError("Expiration date must be in the future")
+        return v
+
+    class Config:
+        from_attributes = True
 
 
 class QuestionCreateResponse(BaseModel):

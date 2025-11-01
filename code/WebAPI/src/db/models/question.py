@@ -43,10 +43,10 @@ class Question(Base):
     answers = relationship("Answer", back_populates="question", cascade="all, delete-orphan")
     tokens = relationship("Token", back_populates="question", cascade="all, delete-orphan")
 
-    # relazione molti-a-molti tramite tabella intermedia
+
     team_links = relationship("TeamQuestion", back_populates="question", cascade="all, delete-orphan")
 
-    # ⚙️ proxy per accedere direttamente ai team
+
     from typing import TYPE_CHECKING
     if TYPE_CHECKING:
         from src.db.models.core import Team
@@ -89,7 +89,7 @@ class Token(Base):
     question_id = Column(Integer, ForeignKey("question.id"), nullable=False)
     user_id = Column(Integer, ForeignKey("users.id"))
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
-    expires_at = Column(DateTime, server_default=func.now(), nullable=False)
+    expires_at = Column(DateTime, nullable=True)
     used = Column(Boolean, default=False)
 
     question = relationship("Question", back_populates="tokens")

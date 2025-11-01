@@ -1,3 +1,5 @@
+from http.client import HTTPException
+
 from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
 import secrets
@@ -6,30 +8,55 @@ from src import schemas
 from src.db import models
 
 
-def create_question(db: Session, question_data: schemas.QuestionCreate):
-    question_dict = question_data.dict(exclude={"token_type", "teams_ids", "users_ids"})
-    question = models.Question(**question_dict)
+def create_question(db: Session, question_data: schemas.QuestionCreate, lead_id: int):
+    question_dict = question_data.dict(
+        exclude={"token_type", "teams_ids", "users_ids", "expires_at"}
+    )
 
+    question_dict["team_lead_id"] = lead_id
+
+
+    question = models.Question(**question_dict)
     db.add(question)
     db.flush()
 
     if question_data.teams_ids:
-        teams = db.query(models.Team).filter(models.Team.id.in_(question_data.teams_ids)).all()
+        teams = (
+            db.query(models.Team)
+            .filter(models.Team.id.in_(question_data.teams_ids))
+            .all()
+        )
+
+
+        for t in teams:
+            if t.team_lead_id != lead_id:
+                raise HTTPException(
+                    status_code=403,
+                    detail=f"Not authorized to assign team {t.id}",
+                )
+
         question.teams.extend(teams)
 
+
+    token_expires_at = question_data.expires_at
+
     tokens = []
+
     if question_data.token_type == "universal":
         token_value = secrets.token_urlsafe(16)
-        db.add(models.Token(
-            token_value=token_value,
-            question_id=question.id,
-            expires_at=datetime.utcnow() + timedelta(days=7),
-            used=False
-        ))
+        db.add(
+            models.Token(
+                token_value=token_value,
+                question_id=question.id,
+                expires_at=token_expires_at,
+                used=False,
+            )
+        )
         tokens.append(token_value)
 
     elif question_data.token_type == "individual":
         user_ids_set = set(question_data.users_ids or [])
+
         if question_data.teams_ids:
             team_users = (
                 db.query(models.User.id)
@@ -42,36 +69,51 @@ def create_question(db: Session, question_data: schemas.QuestionCreate):
 
         for user_id in user_ids_set:
             token_value = secrets.token_urlsafe(16)
-            token = models.Token(
-                token_value=token_value,
-                question_id=question.id,
-                user_id=user_id,
-                expires_at=datetime.utcnow() + timedelta(days=7),
-                used=False
+            db.add(
+                models.Token(
+                    token_value=token_value,
+                    question_id=question.id,
+                    user_id=user_id,
+                    expires_at=token_expires_at,
+                    used=False,
+                )
             )
-            db.add(token)
             tokens.append(token_value)
 
+    # 5. salva tutto
     db.commit()
     db.refresh(question)
 
     return question, tokens
 
 
+def get_questions_by_lead(db: Session, lead_id: int):
+    """Return only questions created by the given team lead."""
+    return db.query(models.Question).filter(models.Question.team_lead_id == lead_id).all()
 
-def get_questions(db: Session):
-    return db.query(models.Question).all()
 
-def get_question_by_id(db: Session, question_id: int):
+def get_question_by_id(db: Session, question_id: int, lead_id: int):
+    """Return a question only if it belongs to the current team lead."""
     question = (
         db.query(models.Question)
-        .filter(models.Question.id == question_id)
+        .filter(models.Question.id == question_id, models.Question.team_lead_id == lead_id)
         .first()
     )
+
+    if not question:
+        raise HTTPException(
+            status_code=404,
+            detail="Question not found or not authorized"
+        )
     return question
 
-def delete_question(db: Session, question_id: int):
-    question = db.query(models.Question).filter(models.Question.id == question_id).first()
+def delete_question(db: Session, question_id: int, lead_id: int):
+    """Delete only if the question belongs to the given lead."""
+    question = (
+        db.query(models.Question)
+        .filter(models.Question.id == question_id, models.Question.team_lead_id == lead_id)
+        .first()
+    )
     if not question:
         return None
 
