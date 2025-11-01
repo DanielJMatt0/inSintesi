@@ -21,6 +21,7 @@ def create_team_endpoint(
     team = crud.create_team(db, team_data, lead.id)
     return {
         "id": team.id,
+        "name": team.name,
         "team_lead_id": team.team_lead_id,
         "users_ids": [u.id for u in team.users],
     }
@@ -34,7 +35,7 @@ def list_my_teams(
     """List all teams owned by the logged-in team lead."""
     teams = crud.list_teams(db, lead.id)
     return [
-        {"id": t.id, "team_lead_id": t.team_lead_id, "users_ids": [u.id for u in t.users]}
+        {"id": t.id, "name": t.team.name,"team_lead_id": t.team_lead_id, "users_ids": [u.id for u in t.users]}
         for t in teams
     ]
 
@@ -47,7 +48,7 @@ def get_team_endpoint(
 ):
     """Get a team only if it belongs to the logged-in team lead."""
     team = crud.get_team(db, team_id, lead.id)
-    return {"id": team.id, "team_lead_id": team.team_lead_id, "users_ids": [u.id for u in team.users]}
+    return {"id": team.id, "name": team.name, "team_lead_id": team.team_lead_id, "users_ids": [u.id for u in team.users]}
 
 
 @router.put("/{team_id}", response_model=schemas.TeamOut)
@@ -59,7 +60,7 @@ def update_team_endpoint(
 ):
     """Update a team only if it belongs to the logged-in team lead."""
     team = crud.update_team(db, team_id, team_data, lead.id)
-    return {"id": team.id, "team_lead_id": team.team_lead_id, "users_ids": [u.id for u in team.users]}
+    return {"id": team.id,"name": team.name, "team_lead_id": team.team_lead_id, "users_ids": [u.id for u in team.users]}
 
 
 @router.delete("/{team_id}", status_code=status.HTTP_204_NO_CONTENT)

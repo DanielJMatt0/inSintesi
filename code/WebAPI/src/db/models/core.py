@@ -56,6 +56,7 @@ class Team(Base):
     __tablename__ = "team"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(String(100), nullable=False)
     team_lead_id = Column(Integer, ForeignKey("team_lead.id"), nullable=False)
     created_at = Column(DateTime, server_default=func.now())
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())

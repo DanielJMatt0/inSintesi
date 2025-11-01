@@ -32,7 +32,7 @@ def list_teams(db: Session, lead_id: int):
 
 def create_team(db: Session, team_data, lead_id: int):
     """Create a new team for the logged-in team lead."""
-    team = models.Team(team_lead_id=lead_id)
+    team = models.Team(name=team_data.name,team_lead_id=lead_id)
 
     # Add members if provided
     if team_data.users_ids:
@@ -48,6 +48,9 @@ def create_team(db: Session, team_data, lead_id: int):
 def update_team(db: Session, team_id: int, team_data, lead_id: int):
     """Update an existing team if it belongs to the current team lead."""
     team = get_team(db, team_id, lead_id)
+
+    if team_data.name is not None:
+        team.name = team_data.name
 
     # Replace all users if provided
     if team_data.users_ids is not None:

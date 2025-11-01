@@ -64,16 +64,19 @@ class TeamLeadOut(TeamLeadBase):
 # TEAM
 # -------------------------
 class TeamBase(BaseModel):
+    name: str
     team_lead_id: int
 
 class TeamCreate(TeamBase):
     users_ids: Optional[List[int]] = []
 
 class TeamUpdate(BaseModel):
+    name: Optional[str] = None
     users_ids: Optional[List[int]] = None
 
 class TeamOut(BaseModel):
     id: int
+    name: str
     team_lead_id: int
     users_ids: List[int]
 
