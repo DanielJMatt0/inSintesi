@@ -62,3 +62,40 @@ export interface QuestionResponse {
   created_at: string
   updated_at?: string | null
 }
+
+export interface Team {
+  id: number
+  name: string
+  members?: number[]
+  created_at?: string
+  updated_at?: string
+}
+
+export interface CreateTeamBody {
+  name: string
+}
+
+export interface UpdateTeamBody {
+  name?: string
+}
+
+export interface User {
+  id: number
+  name: string
+  lastname: string
+  email: string
+  created_at?: string
+  updated_at?: string
+}
+
+export interface CreateUserBody {
+  name: string
+  lastname: string
+  email: string
+}
+
+export interface UpdateUserBody {
+  name?: string
+  lastname?: string
+  email?: string
+}
