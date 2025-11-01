@@ -27,21 +27,29 @@
       title="Reasons Behind Choices"
       description="Key arguments and reasoning behind option preferences"
     >
-      <ul class="list-disc pl-6 space-y-1">
-        <li v-for="(value, key) in data.reasons" :key="key">
-          <strong>{{ key }}:</strong> {{ value }}
-        </li>
-      </ul>
+      <div class="space-y-4">
+        <div
+          v-for="(reasons, option) in data.reasons"
+          :key="option"
+          class="bg-gray-50 rounded-lg p-4 border border-gray-200"
+        >
+          <p class="font-semibold text-gray-800 mb-2">{{ option }}</p>
+          <ul class="list-disc pl-6 text-sm text-gray-700 space-y-1">
+            <li v-for="(reason, i) in reasons" :key="i">{{ reason }}</li>
+          </ul>
+        </div>
+      </div>
     </ReportSection>
+
 
     <!-- Summary -->
     <ReportSection v-if="data.summary" title="Summary">
-      <p class="whitespace-pre-line">{{ data.summary }}</p>
+       <div v-html="renderMarkdown(data.summary)" class="prose max-w-none"></div>
     </ReportSection>
 
     <!-- Recommendation -->
     <ReportSection v-if="data.recommendation" title="Recommendation">
-      <p class="whitespace-pre-line">{{ data.recommendation }}</p>
+       <div v-html="renderMarkdown(data.recommendation)" class="prose max-w-none"></div>
     </ReportSection>
 
     <!-- AI Thought -->
@@ -50,21 +58,19 @@
       title="AI Thought"
       description="Internal reasoning trace of the AI model"
     >
-      <pre
-        class="bg-gray-50 rounded-xl p-4 overflow-auto text-sm whitespace-pre-wrap text-gray-700"
-      >
-{{ data.ai_thought }}
-      </pre>
+       <div v-html="renderMarkdown(data.ai_thought)" class="prose max-w-none"></div>
     </ReportSection>
   </div>
 </template>
 
 <script setup>
-import ReportSection from '@/components/ReportSection.vue'
-import { formatDate } from '@/utils/formatters'
+import ReportSection from '../ReportSection.vue'
+import { formatDate, useMarkdown } from '../../utils/formatters'
 import { computed } from 'vue'
 import { Bar } from 'vue-chartjs'
-import { ChartJS } from '@/plugins/chart'
+import { ChartJS } from '../../plugins/chart'
+
+const { renderMarkdown } = useMarkdown()
 
 const props = defineProps({
   data: { type: Object, required: true }
@@ -73,12 +79,14 @@ const props = defineProps({
 /* Chart data */
 const chartData = computed(() => {
   const dist = props.data.distribution_and_options || {}
+  const options = dist.options || []
+  const votes = dist.votes || {}
   return {
-    labels: Object.keys(dist),
+    labels: options,
     datasets: [
       {
-        label: 'Support Level',
-        data: Object.values(dist)
+        label: null,
+        data: options.map(opt => votes[opt] ?? 0),
       }
     ]
   }
@@ -89,7 +97,7 @@ const chartOptions = {
   responsive: true,
   maintainAspectRatio: false,
   plugins: {
-    legend: { position: 'bottom' },
+    legend: { display: false },
     title: { display: true, text: 'Option Comparison Results' },
     tooltip: {
       callbacks: {

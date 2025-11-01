@@ -39,31 +39,31 @@
 
     <!-- Summary -->
     <ReportSection v-if="data.summary" title="Summary">
-      <p class="whitespace-pre-line">{{ data.summary }}</p>
+      <!-- <p class="whitespace-pre-line">{{ data.summary }}</p> -->
+       <div v-html="renderMarkdown(data.summary)" class="prose max-w-none"></div>
     </ReportSection>
 
     <!-- Recommendation -->
     <ReportSection v-if="data.recommendation" title="Recommendation">
-      <p class="whitespace-pre-line">{{ data.recommendation }}</p>
+      <!-- <p class="whitespace-pre-line">{{ data.recommendation }}</p> -->
+       <div v-html="renderMarkdown(data.recommendation)" class="prose max-w-none"></div>
     </ReportSection>
 
     <!-- AI Thought -->
     <ReportSection v-if="data.ai_thought" title="AI Thought" description="Internal reasoning trace">
-      <pre
-        class="bg-gray-50 rounded-xl p-4 overflow-auto text-sm whitespace-pre-wrap text-gray-700"
-      >
-{{ data.ai_thought }}
-      </pre>
+       <div v-html="renderMarkdown(data.ai_thought)" class="prose max-w-none"></div>
     </ReportSection>
   </div>
 </template>
 
 <script setup>
-import ReportSection from '@/components/ReportSection.vue'
-import { formatDate } from '@/utils/formatters'
+import ReportSection from '../ReportSection.vue'
+import { formatDate, useMarkdown } from '../../utils/formatters'
 import { computed } from 'vue'
 import { Bar } from 'vue-chartjs'
-import { ChartJS } from '@/plugins/chart'
+import { ChartJS } from '../../plugins/chart'
+
+const { renderMarkdown } = useMarkdown()
 
 const props = defineProps({
   data: { type: Object, required: true }
@@ -85,7 +85,7 @@ const chartData = computed(() => {
 const chartOptions = {
   responsive: true,
   plugins: {
-    legend: { position: 'bottom' },
+    legend: { display: false },
     title: { display: true, text: 'Stance Distribution' }
   }
 }

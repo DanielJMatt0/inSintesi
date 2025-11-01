@@ -1,4 +1,11 @@
-// src/utils/formatters.js
+import MarkdownIt from 'markdown-it'
+import DOMPurify from 'dompurify'
+
+
+const md = new MarkdownIt({
+  breaks: true,
+  linkify: true,
+})
 
 /**
  * Format a date or ISO string into a European-style string.
@@ -18,4 +25,14 @@ export function formatDate(val) {
   } catch {
     return String(val)
   }
+}
+
+export function useMarkdown() {
+  const renderMarkdown = (text) => {
+    if (!text) return ''
+    const html = md.render(text)
+    return DOMPurify.sanitize(html)
+  }
+
+  return { renderMarkdown }
 }
