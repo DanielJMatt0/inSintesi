@@ -1,8 +1,24 @@
-from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, Boolean, func
+"""
+Database models for questions and related entities.
+
+This module defines:
+- QuestionType: categories of questions (e.g. stance, comparison, feedback)
+- Question: core entity linking team leads, types, and answers
+- Answer, Token, TeamQuestion: supporting relational models
+"""
+
+from sqlalchemy import (
+    Column, Integer, String, Text, DateTime, ForeignKey, Boolean, func
+)
 from sqlalchemy.orm import relationship
 from db.base import Base
 
+
+# ---------------------------------------------------------------------
+# Question Type
+# ---------------------------------------------------------------------
 class QuestionType(Base):
+    """Represents a specific type of question (analysis category)."""
     __tablename__ = "question_type"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -10,26 +26,36 @@ class QuestionType(Base):
     created_at = Column(DateTime, server_default=func.now())
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
 
-    questions = relationship("Question", back_populates="question_type")
+    # Relationship with questions
+    questions = relationship("Question", back_populates="question_type", lazy="joined")
 
 
+# ---------------------------------------------------------------------
+# Question
+# ---------------------------------------------------------------------
 class Question(Base):
+    """Core question model used across AI analyses."""
     __tablename__ = "question"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     content = Column(Text, nullable=False)
     team_lead_id = Column(Integer, ForeignKey("team_lead.id"), nullable=False)
     question_type_id = Column(Integer, ForeignKey("question_type.id"), nullable=False)
+
+    # Optional: stores reference to AI analysis result
+    report_id = Column(String(36), nullable=True)
+
     created_at = Column(DateTime, server_default=func.now())
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
 
+    # Relationships
     team_lead = relationship("TeamLead", back_populates="questions")
-    question_type = relationship("QuestionType", back_populates="questions")
-    answers = relationship("Answer", back_populates="question")
-    tokens = relationship("Token", back_populates="question")
-    team_links = relationship("TeamQuestion", back_populates="question")
+    question_type = relationship("QuestionType", back_populates="questions", lazy="joined")
+    answers = relationship("Answer", back_populates="question", cascade="all, delete-orphan")
+    tokens = relationship("Token", back_populates="question", cascade="all, delete-orphan")
+    team_links = relationship("TeamQuestion", back_populates="question", cascade="all, delete-orphan")
 
-    # Back-references for AI results
+    # Relationships to AI analysis results
     stance_analysis = relationship("StanceAnalysis", back_populates="question", cascade="all, delete-orphan")
     option_comparison = relationship("OptionComparison", back_populates="question", cascade="all, delete-orphan")
     idea_generation = relationship("IdeaGeneration", back_populates="question", cascade="all, delete-orphan")
@@ -37,7 +63,11 @@ class Question(Base):
     feedback_analysis = relationship("FeedbackAnalysis", back_populates="question", cascade="all, delete-orphan")
 
 
+# ---------------------------------------------------------------------
+# Answer
+# ---------------------------------------------------------------------
 class Answer(Base):
+    """Stores user answers associated with a question."""
     __tablename__ = "answer"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -49,7 +79,11 @@ class Answer(Base):
     question = relationship("Question", back_populates="answers")
 
 
+# ---------------------------------------------------------------------
+# Token
+# ---------------------------------------------------------------------
 class Token(Base):
+    """Unique access tokens for users to answer questions."""
     __tablename__ = "token"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -64,7 +98,11 @@ class Token(Base):
     user = relationship("User", back_populates="tokens")
 
 
+# ---------------------------------------------------------------------
+# TeamQuestion
+# ---------------------------------------------------------------------
 class TeamQuestion(Base):
+    """Associative table linking teams to their questions."""
     __tablename__ = "team_question"
 
     team_id = Column(Integer, ForeignKey("team.id"), primary_key=True)
