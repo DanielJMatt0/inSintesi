@@ -25,19 +25,22 @@
 defineProps({
   title: {
     type: String,
-    required: true
+    required: true,
   },
-  description: { // Optional
+  description: {
+    // Optional
     type: String,
-    default: '' 
-  }
+    default: '',
+  },
 })
 </script>
 
 <style scoped>
 /* Hover effect */
 section {
-  transition: box-shadow 0.2s ease, transform 0.2s ease;
+  transition:
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
 }
 section:hover {
   transform: translateY(-2px);

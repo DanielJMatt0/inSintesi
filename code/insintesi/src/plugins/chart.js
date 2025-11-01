@@ -8,7 +8,7 @@ import {
   LinearScale,
   ArcElement,
   PointElement,
-  LineElement
+  LineElement,
 } from 'chart.js'
 
 ChartJS.register(

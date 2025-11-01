@@ -2,14 +2,17 @@
   <div class="p-6">
     <h1 class="text-3xl font-bold mb-6">Report</h1>
 
-    <div v-if="loading" class="text-gray-500">Loading report...</div>
-    <div v-if="error" class="text-red-500">{{ error }}</div>
+    <div
+v-if="loading" class="text-gray-500">Loading report...</div>
+    <div
+v-if="error" class="text-red-500">
+      {{ error }}
+    </div>
 
     <component
-      v-if="report && componentName"
-      :is="componentName"
-      :data="report"
-    />
+:is="componentName" v-if="report && componentName"
+:data="report"
+/>
   </div>
 </template>
 
@@ -23,7 +26,7 @@ import PriorityRankingReport from '../components/reports/PriorityRankingReport.v
 import FeedbackAnalysisReport from '../components/reports/FeedbackAnalysisReport.vue'
 
 const props = defineProps({
-  questionId: Number
+  questionId: Number,
 })
 
 const loading = ref(true)
@@ -36,7 +39,7 @@ const components = {
   option_comparison: OptionComparisonReport,
   idea_generation: IdeaGenerationReport,
   priority_ranking: PriorityRankingReport,
-  feedback_analysis: FeedbackAnalysisReport
+  feedback_analysis: FeedbackAnalysisReport,
 }
 
 const componentName = computed(() => components[reportType.value] || null)

@@ -6,11 +6,11 @@ const routes = [
     path: '/report/:questionId',
     name: 'report',
     component: ReportView,
-    props: true
-  }
+    props: true,
+  },
 ]
 
 export default createRouter({
   history: createWebHistory(),
-  routes
+  routes,
 })

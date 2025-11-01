@@ -1,7 +1,8 @@
 <template>
   <div class="min-h-screen bg-gray-50 text-gray-800">
     <header class="bg-white shadow-md p-4 flex justify-between items-center">
-      <router-link to="/" class="text-2xl font-bold hover:text-blue-600 transition">
+      <router-link to="/"
+class="text-2xl font-bold hover:text-blue-600 transition">
         inSintesi
       </router-link>
     </header>

@@ -1,12 +1,11 @@
 <template>
   <div>
     <!-- Topic -->
-    <ReportSection
-        title="Topic"
-        description="Main question analyzed by participants"
-    >
+    <ReportSection title="Topic" description="Main question analyzed by participants">
       <div>
-        <p class="text-lg font-medium text-gray-800">{{ data.topic }}</p>
+        <p class="text-lg font-medium text-gray-800">
+          {{ data.topic }}
+        </p>
         <p class="text-sm text-gray-500 mt-1">
           Created: {{ formatDate(data.created_at) }} · Updated: {{ formatDate(data.updated_at) }}
         </p>
@@ -18,10 +17,11 @@
       title="Opinion Distribution"
       description="Distribution of participant stances (Pro / Contra / Neutral)"
     >
-      <Bar :data="chartData" :options="chartOptions" />
+      <Bar :data="chartData"
+:options="chartOptions" />
       <p class="mt-4 text-sm text-gray-500">
-        Total responses: {{ data.total_responses }}
-      </p>
+Total responses: {{ data.total_responses }}
+</p>
     </ReportSection>
 
     <!-- Themes -->
@@ -31,27 +31,37 @@
       description="Main themes identified from participants' comments"
     >
       <ul class="list-disc pl-6 space-y-1">
-        <li v-for="(value, key) in data.themes" :key="key">
+        <li v-for="(value, key) in data.themes"
+:key="key">
           <strong>{{ key }}:</strong> {{ value }}
         </li>
       </ul>
     </ReportSection>
 
     <!-- Summary -->
-    <ReportSection v-if="data.summary" title="Summary">
+    <ReportSection v-if="data.summary"
+title="Summary">
       <!-- <p class="whitespace-pre-line">{{ data.summary }}</p> -->
-       <div v-html="renderMarkdown(data.summary)" class="prose max-w-none"></div>
+      <div class="prose max-w-none"
+v-html="renderMarkdown(data.summary)"
+/>
     </ReportSection>
 
     <!-- Recommendation -->
-    <ReportSection v-if="data.recommendation" title="Recommendation">
+    <ReportSection v-if="data.recommendation"
+title="Recommendation">
       <!-- <p class="whitespace-pre-line">{{ data.recommendation }}</p> -->
-       <div v-html="renderMarkdown(data.recommendation)" class="prose max-w-none"></div>
+      <div class="prose max-w-none"
+v-html="renderMarkdown(data.recommendation)"
+/>
     </ReportSection>
 
     <!-- AI Thought -->
-    <ReportSection v-if="data.ai_thought" title="AI Thought" description="Internal reasoning trace">
-       <div v-html="renderMarkdown(data.ai_thought)" class="prose max-w-none"></div>
+    <ReportSection v-if="data.ai_thought"
+title="AI Thought" description="Internal reasoning trace">
+      <div class="prose max-w-none"
+v-html="renderMarkdown(data.ai_thought)"
+/>
     </ReportSection>
   </div>
 </template>
@@ -66,7 +76,7 @@ import { ChartJS } from '../../plugins/chart'
 const { renderMarkdown } = useMarkdown()
 
 const props = defineProps({
-  data: { type: Object, required: true }
+  data: { type: Object, required: true },
 })
 
 const chartData = computed(() => {
@@ -76,9 +86,9 @@ const chartData = computed(() => {
     datasets: [
       {
         label: 'Responses',
-        data: Object.values(dist)
-      }
-    ]
+        data: Object.values(dist),
+      },
+    ],
   }
 })
 
@@ -86,8 +96,8 @@ const chartOptions = {
   responsive: true,
   plugins: {
     legend: { display: false },
-    title: { display: true, text: 'Stance Distribution' }
-  }
+    title: { display: true, text: 'Stance Distribution' },
+  },
 }
 
 const hasThemes = computed(() => {

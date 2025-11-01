@@ -1,9 +1,12 @@
 <template>
   <div>
     <!-- Topic -->
-    <ReportSection title="Topic" description="Main question or feedback theme analyzed">
+    <ReportSection title="Topic"
+description="Main question or feedback theme analyzed">
       <div>
-        <p class="text-lg font-medium text-gray-800">{{ data.topic }}</p>
+        <p class="text-lg font-medium text-gray-800">
+          {{ data.topic }}
+        </p>
         <p class="text-sm text-gray-500 mt-1">
           Created: {{ formatDate(data.created_at) }} · Updated: {{ formatDate(data.updated_at) }}
         </p>
@@ -11,12 +14,12 @@
     </ReportSection>
 
     <!-- Sentiment Overview -->
-    <ReportSection title="Sentiment Overview" description="Overall sentiment score based on participant feedback">
+    <ReportSection
+      title="Sentiment Overview"
+      description="Overall sentiment score based on participant feedback"
+    >
       <div class="flex flex-col items-center justify-center py-4">
-        <div
-          class="text-5xl font-bold"
-          :class="sentimentColor"
-        >
+        <div class="text-5xl font-bold" :class="sentimentColor">
           {{ sentimentLabel }}
         </div>
         <p class="text-gray-500 mt-2">Score: {{ data.sentiment }}</p>
@@ -35,12 +38,17 @@
           :key="'pos-' + index"
           class="bg-green-50 rounded-lg p-3 border border-green-100"
         >
-          <p class="font-semibold text-green-700">{{ theme.name }}</p>
+          <p class="font-semibold text-green-700">
+            {{ theme.name }}
+          </p>
           <ul
             v-if="theme.examples && theme.examples.length"
             class="list-disc pl-6 text-sm text-gray-700 mt-1"
           >
-            <li v-for="(ex, i) in theme.examples" :key="i">{{ ex }}</li>
+            <li
+v-for="(ex, i) in theme.examples" :key="i">
+              {{ ex }}
+            </li>
           </ul>
         </li>
       </ul>
@@ -58,26 +66,36 @@
           :key="'neg-' + index"
           class="bg-red-50 rounded-lg p-3 border border-red-100"
         >
-          <p class="font-semibold text-red-700">{{ theme.name }}</p>
+          <p class="font-semibold text-red-700">
+            {{ theme.name }}
+          </p>
           <ul
             v-if="theme.examples && theme.examples.length"
             class="list-disc pl-6 text-sm text-gray-700 mt-1"
           >
-            <li v-for="(ex, i) in theme.examples" :key="i">{{ ex }}</li>
+            <li
+v-for="(ex, i) in theme.examples" :key="i">
+              {{ ex }}
+            </li>
           </ul>
         </li>
       </ul>
     </ReportSection>
 
-
     <!-- Summary -->
-    <ReportSection v-if="data.summary" title="Summary">
-       <div v-html="renderMarkdown(data.summary)" class="prose max-w-none"></div>
+    <ReportSection v-if="data.summary"
+title="Summary">
+      <div class="prose max-w-none"
+v-html="renderMarkdown(data.summary)"
+/>
     </ReportSection>
 
     <!-- Recommendation -->
-    <ReportSection v-if="data.recommendation" title="Recommendation">
-       <div v-html="renderMarkdown(data.recommendation)" class="prose max-w-none"></div>
+    <ReportSection v-if="data.recommendation"
+title="Recommendation">
+      <div class="prose max-w-none"
+v-html="renderMarkdown(data.recommendation)"
+/>
     </ReportSection>
 
     <!-- AI Thought -->
@@ -86,8 +104,9 @@
       title="AI Thought"
       description="Internal reasoning trace of the AI model"
     >
-      
-       <div v-html="renderMarkdown(data.ai_thought)" class="prose max-w-none"></div>
+      <div class="prose max-w-none"
+v-html="renderMarkdown(data.ai_thought)"
+/>
     </ReportSection>
   </div>
 </template>
@@ -100,7 +119,7 @@ import { computed } from 'vue'
 const { renderMarkdown } = useMarkdown()
 
 const props = defineProps({
-  data: { type: Object, required: true }
+  data: { type: Object, required: true },
 })
 
 /* Sentiment label and color */
@@ -118,16 +137,9 @@ const sentimentColor = computed(() => {
   return 'text-gray-600'
 })
 
-const positiveThemes = computed(() =>
-  props.data.positive_themes ||
-  []
-)
+const positiveThemes = computed(() => props.data.positive_themes || [])
 
-const negativeThemes = computed(() =>
-  props.data.negative_themes ||
-  []
-)
-
+const negativeThemes = computed(() => props.data.negative_themes || [])
 
 /* Check for themes */
 const hasPositive = computed(() => {
@@ -139,5 +151,4 @@ const hasNegative = computed(() => {
   const t = props.data.negative_themes
   return t && typeof t === 'object' && Object.keys(t).length > 0
 })
-
 </script>
