@@ -24,6 +24,17 @@ from ai.pipelines.priority_ranking import priority_ranking_pipeline
 from ai.pipelines.feedback_analysis import feedback_analysis_pipeline
 
 
+# ---------------------------------------------------------------------
+# Utility function
+# ---------------------------------------------------------------------
+def _unwrap(value, key: str):
+    """If a dict wraps the real value under a single key, extract it."""
+    return value[key] if isinstance(value, dict) and key in value else value
+
+
+# ---------------------------------------------------------------------
+# Main dispatcher
+# ---------------------------------------------------------------------
 def analyze_topic(
     question_type: str,
     topic: str,
@@ -48,7 +59,6 @@ def analyze_topic(
         Optional SQLAlchemy session; if not provided, a temporary session is created.
     question_id : int | None
         Optional existing Question ID to link this analysis to.
-        If not provided, a temporary Question will be created automatically.
 
     Returns
     -------
@@ -64,7 +74,7 @@ def analyze_topic(
 
     try:
         # -----------------------------------------------------------------
-        # Handle missing question_id: create a temporary Question for testing
+        # Create temporary question if missing (for testing or debugging)
         # -----------------------------------------------------------------
         if question_id is None:
             from db.models.question import Question
@@ -105,6 +115,8 @@ def analyze_topic(
 
         elif question_type == "idea_generation":
             themes, summary, recommendation, thought = idea_generation_pipeline(topic, opinions)
+            themes = _unwrap(themes, "themes")
+
             record = models.IdeaGeneration(
                 question_id=question_id,
                 topic=topic,
@@ -132,6 +144,10 @@ def analyze_topic(
             sentiment, pos_themes, neg_themes, summary, recommendation, thought = feedback_analysis_pipeline(
                 topic, opinions
             )
+
+            pos_themes = _unwrap(pos_themes, "themes")
+            neg_themes = _unwrap(neg_themes, "themes")
+
             record = models.FeedbackAnalysis(
                 question_id=question_id,
                 topic=topic,
@@ -209,9 +225,9 @@ def analyze_topic(
             session.close()
 
 
-# -------------------------------------------------------------------------
+# ---------------------------------------------------------------------
 # Local testing utility
-# -------------------------------------------------------------------------
+# ---------------------------------------------------------------------
 if __name__ == "__main__":
     examples = [
         (
