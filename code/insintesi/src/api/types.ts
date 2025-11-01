@@ -20,3 +20,23 @@ export interface ValidationError {
   msg: string;
   type: string;
 }
+
+// === ANSWER TYPES ===
+export interface AnswerResponse {
+  id: number
+  content: string
+  question_id: number
+  created_at: string
+}
+
+export interface CreateAnswerBody {
+  content: string
+}
+
+// === QUESTION TYPES ===
+export interface QuestionResponse {
+  id: number
+  content: string
+  created_at: string
+  updated_at?: string | null
+}
