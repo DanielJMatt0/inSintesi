@@ -42,6 +42,17 @@ class TeamLead(TeamLeadBase):
     class Config:
         from_attributes = True
 
+class TeamLeadRegister(TeamLeadBase):
+    password: str
+
+class TeamLeadOut(TeamLeadBase):
+    id: int
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True
+
 
 # -------------------------
 # TEAM
@@ -152,3 +163,8 @@ class TokenOut(BaseModel):
 
     class Config:
         from_attributes = True
+
+#-------------------------------------------------
+#AUTHENTICATION
+class RefreshTokenRequest(BaseModel):
+    refresh_token: str
