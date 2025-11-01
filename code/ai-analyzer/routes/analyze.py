@@ -9,7 +9,7 @@ stores the result in the database, and returns a structured JSON response.
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Optional
 
 from analyzer import analyze_topic
 from db.session import SessionLocal, init_db
@@ -34,6 +34,10 @@ def get_db():
 # ---------------------------------------------------------------------
 class AnalyzeRequest(BaseModel):
     """Schema for incoming analysis requests."""
+    question_id: Optional[int] = Field(
+        default=None,
+        description="Optional ID of the question being analyzed. If omitted, a temporary question will be created."
+    )
     question_type: str = Field(
         description=(
             "Type of analysis: 'stance_analysis', 'option_comparison', "
@@ -49,12 +53,12 @@ class AnalyzeResponse(BaseModel):
     id: str
     question_type: str
     topic: str
-    summary: str | None = None
-    recommendation: str | None = None
-    ai_thought: str | None = None
-    created_at: str | None = None
-    updated_at: str | None = None
-    extra: dict | None = None
+    summary: Optional[str] = None
+    recommendation: Optional[str] = None
+    ai_thought: Optional[str] = None
+    created_at: Optional[str] = None
+    updated_at: Optional[str] = None
+    extra: Optional[dict] = None
 
 
 # ---------------------------------------------------------------------
@@ -75,6 +79,7 @@ def run_analysis(payload: AnalyzeRequest, db: Session = Depends(get_db)):
             topic=payload.topic,
             opinions=payload.opinions,
             session=db,
+            question_id=payload.question_id,  # ✅ new field passed through
         )
     except ValueError as exc:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc))

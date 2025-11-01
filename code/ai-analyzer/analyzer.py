@@ -24,7 +24,13 @@ from ai.pipelines.priority_ranking import priority_ranking_pipeline
 from ai.pipelines.feedback_analysis import feedback_analysis_pipeline
 
 
-def analyze_topic(question_type: str, topic: str, opinions: list[str], session: Session | None = None) -> dict:
+def analyze_topic(
+    question_type: str,
+    topic: str,
+    opinions: list[str],
+    session: Session | None = None,
+    question_id: int | None = None,
+) -> dict:
     """
     Perform an analysis and persist its results in the database.
 
@@ -40,6 +46,9 @@ def analyze_topic(question_type: str, topic: str, opinions: list[str], session: 
         The list of textual inputs to analyze.
     session : Session | None
         Optional SQLAlchemy session; if not provided, a temporary session is created.
+    question_id : int | None
+        Optional existing Question ID to link this analysis to.
+        If not provided, a temporary Question will be created automatically.
 
     Returns
     -------
@@ -54,10 +63,24 @@ def analyze_topic(question_type: str, topic: str, opinions: list[str], session: 
         close_session = True
 
     try:
+        # -----------------------------------------------------------------
+        # Handle missing question_id: create a temporary Question for testing
+        # -----------------------------------------------------------------
+        if question_id is None:
+            from db.models.question import Question
+
+            temp_question = Question(content=topic, team_lead_id=1, question_type_id=1)
+            session.add(temp_question)
+            session.commit()
+            question_id = temp_question.id
+
+        # -----------------------------------------------------------------
         # Dispatch by question type
+        # -----------------------------------------------------------------
         if question_type == "stance_analysis":
             distribution, total, summary, recommendation, thought = stance_pipeline(topic, opinions)
             record = models.StanceAnalysis(
+                question_id=question_id,
                 topic=topic,
                 raw_inputs={"opinions": opinions},
                 distribution=distribution,
@@ -70,6 +93,7 @@ def analyze_topic(question_type: str, topic: str, opinions: list[str], session: 
         elif question_type == "option_comparison":
             dist_opts, reasons, summary, recommendation, thought = option_comparison_pipeline(topic, opinions)
             record = models.OptionComparison(
+                question_id=question_id,
                 topic=topic,
                 raw_inputs={"opinions": opinions},
                 distribution_and_options=dist_opts,
@@ -82,6 +106,7 @@ def analyze_topic(question_type: str, topic: str, opinions: list[str], session: 
         elif question_type == "idea_generation":
             themes, summary, recommendation, thought = idea_generation_pipeline(topic, opinions)
             record = models.IdeaGeneration(
+                question_id=question_id,
                 topic=topic,
                 raw_inputs={"ideas": opinions},
                 themes=themes,
@@ -93,6 +118,7 @@ def analyze_topic(question_type: str, topic: str, opinions: list[str], session: 
         elif question_type == "priority_ranking":
             opts_means, top_reasons, summary, recommendation, thought = priority_ranking_pipeline(topic, opinions)
             record = models.PriorityRanking(
+                question_id=question_id,
                 topic=topic,
                 raw_inputs={"opinions": opinions},
                 options_and_means=opts_means,
@@ -107,6 +133,7 @@ def analyze_topic(question_type: str, topic: str, opinions: list[str], session: 
                 topic, opinions
             )
             record = models.FeedbackAnalysis(
+                question_id=question_id,
                 topic=topic,
                 raw_inputs={"feedback": opinions},
                 sentiment=sentiment,
@@ -120,12 +147,16 @@ def analyze_topic(question_type: str, topic: str, opinions: list[str], session: 
         else:
             raise ValueError(f"Unsupported question_type: {question_type}")
 
+        # -----------------------------------------------------------------
         # Persist record
+        # -----------------------------------------------------------------
         session.add(record)
         session.commit()
         session.refresh(record)
 
+        # -----------------------------------------------------------------
         # Prepare structured result for API or CLI use
+        # -----------------------------------------------------------------
         result = {
             "id": record.id,
             "question_type": question_type,
@@ -178,8 +209,10 @@ def analyze_topic(question_type: str, topic: str, opinions: list[str], session: 
             session.close()
 
 
+# -------------------------------------------------------------------------
+# Local testing utility
+# -------------------------------------------------------------------------
 if __name__ == "__main__":
-    # Example local run (for testing)
     examples = [
         (
             "stance_analysis",
