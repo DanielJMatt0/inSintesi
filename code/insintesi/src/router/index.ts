@@ -1,19 +1,17 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import Login from '@/views/Login.vue';
+import Login from '@/views/TokenAccessView.vue';
 import Dashboard from '@/views/Dashboard.vue';
-import TopicResponse from '@/views/TopicResponse.vue';
 import ReportView from "@/views/ReportView.vue";
+import TokenAccessView from '../views/TokenAccessView.vue';
+import RespondView from '../views/RespondView.vue';
+import RespondSuccessView from '../views/RespondSuccessView.vue';
 
 const routes = [
-    { path: '/', name: 'Login', component: Login },
+    { path: '/', name: 'TokenAccess', component: TokenAccessView },
     { path: '/dashboard', name: 'Dashboard', component: Dashboard },
-    { path: '/respond/:token', name: 'TopicResponse', component: TopicResponse },
-    {
-        path: "/report/:questionId",
-        name: "report",
-        component: ReportView,
-        props: true,
-    },
+    { path: '/respond/:token', name: 'Respond', component: RespondView },
+    { path: '/respond/success', name: 'RespondSuccess', component: RespondSuccessView },
+    { path: "/report/:questionId", name: "report", component: ReportView, props: true },
 ];
 
 const router = createRouter({

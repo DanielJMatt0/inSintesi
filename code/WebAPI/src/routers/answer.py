@@ -42,11 +42,12 @@ def get_question_from_token(token_value: str, db: Session = Depends(get_db)):
         )
 
 
-    if token.expires_at < datetime.utcnow():
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Token has expired"
-        )
+    if token.expires_at:
+        if token.expires_at < datetime.now(datetime.timezone.utc):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Token has expired"
+            )
 
     question = db.query(models.Question).filter(models.Question.id == token.question_id).first()
     if not question:

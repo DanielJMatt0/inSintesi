@@ -90,7 +90,7 @@ class Token(Base):
     user_id = Column(Integer, ForeignKey("users.id"))
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
     expires_at = Column(DateTime, nullable=True)
-    used = Column(Boolean, default=False)
+    used = Column(Boolean, nullable=True, default=False)
 
     question = relationship("Question", back_populates="tokens")
     user = relationship("User", back_populates="tokens")
