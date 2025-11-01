@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from src.routers import question,auth
+from src.routers import question,auth,team
 from src.db.session import init_db
 
 
@@ -9,6 +9,7 @@ app = FastAPI(title="inSintesi API", version="1.0")
 # Include routers
 app.include_router(question.router, prefix="/question", tags=["question"])
 app.include_router(auth.router, prefix="/auth", tags=["auth"])
+app.include_router(team.router, prefix="/team", tags=["team"])
 
 if __name__ == "__main__":
     import uvicorn

@@ -61,12 +61,15 @@ class TeamBase(BaseModel):
     team_lead_id: int
 
 class TeamCreate(TeamBase):
-    pass
+    users_ids: Optional[List[int]] = []
 
-class Team(TeamBase):
+class TeamUpdate(BaseModel):
+    users_ids: Optional[List[int]] = None
+
+class TeamOut(BaseModel):
     id: int
-    created_at: datetime
-    updated_at: datetime
+    team_lead_id: int
+    users_ids: List[int]
 
     class Config:
         from_attributes = True
