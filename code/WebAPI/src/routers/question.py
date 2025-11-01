@@ -9,9 +9,9 @@ router = APIRouter()
 # -------------------------
 # CREATE QUESTION
 # -------------------------
-@router.post("/", response_model=schemas.Question)
-def create_question(question: schemas.QuestionCreate, db: Session = Depends(get_db)):
-    return crud.create_question(db=db, question=question)
+@router.post("/", response_model=dict)
+def create_question(question: schemas.QuestionCreate, token_type: str = "universal", users_ids: list[int] = None, db: Session = Depends(get_db)):
+    return crud.create_question(db=db, question=question, token_type=token_type, users_ids=users_ids)
 
 # -------------------------
 # GET ALL QUESTIONS
