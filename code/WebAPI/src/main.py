@@ -5,6 +5,7 @@ from src.db.session import init_db
 from src.sanitizer.sanitizer import SanitizerMiddleware
 
 app = FastAPI(title="inSintesi API", version="1.0")
+init_db()
 
 app.add_middleware(
     CORSMiddleware,
@@ -29,5 +30,5 @@ app.include_router(analyze.router, prefix="/analyze", tags=["analyze"])
 
 if __name__ == "__main__":
     import uvicorn
-    init_db()
+    
     uvicorn.run("src.main:app", host="127.0.0.1", port=8000, reload=True)
