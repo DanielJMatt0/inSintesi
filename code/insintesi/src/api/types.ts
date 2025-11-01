@@ -40,3 +40,62 @@ export interface QuestionResponse {
   created_at: string
   updated_at?: string | null
 }
+
+export interface QuestionCreate {
+  content: string
+  team_lead_id: number
+  question_type_id: number
+  token_type: string
+  teams_ids: number[]
+  users_ids?: number[] | null
+  expires_at?: string | null
+}
+
+export interface QuestionCreateResponse {
+  question: QuestionResponse
+  tokens: string[]
+}
+
+export interface QuestionResponse {
+  id: number
+  content: string
+  created_at: string
+  updated_at?: string | null
+}
+
+export interface Team {
+  id: number
+  name: string
+  members?: number[]
+  created_at?: string
+  updated_at?: string
+}
+
+export interface CreateTeamBody {
+  name: string
+}
+
+export interface UpdateTeamBody {
+  name?: string
+}
+
+export interface User {
+  id: number
+  name: string
+  lastname: string
+  email: string
+  created_at?: string
+  updated_at?: string
+}
+
+export interface CreateUserBody {
+  name: string
+  lastname: string
+  email: string
+}
+
+export interface UpdateUserBody {
+  name?: string
+  lastname?: string
+  email?: string
+}
