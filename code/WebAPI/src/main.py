@@ -1,15 +1,25 @@
 from fastapi import FastAPI
-from src.routers import question,auth,team,user,answer,analyze
+from fastapi.middleware.cors import CORSMiddleware
+from src.routers import question, auth, team, user, answer, analyze
 from src.db.session import init_db
 from src.sanitizer.sanitizer import SanitizerMiddleware
 
-# Create FastAPI app
 app = FastAPI(title="inSintesi API", version="1.0")
 
-# Add sanitizer middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:5173",  # Vite dev server
+        "http://127.0.0.1:5173",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 app.add_middleware(SanitizerMiddleware)
 
-# Include routers
+# Routers
 app.include_router(question.router, prefix="/question", tags=["question"])
 app.include_router(auth.router, prefix="/auth", tags=["auth"])
 app.include_router(team.router, prefix="/team", tags=["team"])
