@@ -20,11 +20,12 @@ def create_answer(db: Session, token_value: str, content: str):
             detail="Invalid token"
         )
 
-    if token.expires_at < datetime.utcnow():
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Token has expired"
-        )
+    if token.expires_at:
+        if token.expires_at < datetime.now(datetime.timezone.utc):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Token has expired"
+            )
 
     if token.used:
         raise HTTPException(

@@ -5,12 +5,14 @@ from src.db.session import init_db
 from src.sanitizer.sanitizer import SanitizerMiddleware
 
 app = FastAPI(title="inSintesi API", version="1.0")
+init_db()
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "http://localhost:5173",  # Vite dev server
-        "http://127.0.0.1:5173",
+        "http://localhost:5173",
+        "https://178.197.215.15:5173",
+        "http://178.197.215.15:5173",
     ],
     allow_credentials=True,
     allow_methods=["*"],
@@ -29,5 +31,5 @@ app.include_router(analyze.router, prefix="/analyze", tags=["analyze"])
 
 if __name__ == "__main__":
     import uvicorn
-    init_db()
+    
     uvicorn.run("src.main:app", host="127.0.0.1", port=8000, reload=True)
