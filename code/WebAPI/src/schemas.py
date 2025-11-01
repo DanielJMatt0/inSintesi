@@ -1,0 +1,197 @@
+from typing import List, Optional
+from datetime import datetime
+from pydantic import BaseModel, EmailStr, field_validator
+from pydantic import Field
+
+# -------------------------
+# USER
+# -------------------------
+class UserBase(BaseModel):
+    name: str
+    lastname: str
+    email: EmailStr
+
+
+class UserCreate(UserBase):
+    team_id: int  # The team to assign this user to
+
+
+class UserUpdate(BaseModel):
+    name: Optional[str] = None
+    lastname: Optional[str] = None
+    email: Optional[EmailStr] = None
+
+
+class UserOut(UserBase):
+    id: int
+
+    class Config:
+        from_attributes = True
+
+
+# -------------------------
+# TEAM LEAD
+# -------------------------
+class TeamLeadBase(BaseModel):
+    name: str
+    lastname: str
+    email: EmailStr
+
+class TeamLeadCreate(TeamLeadBase):
+    password: str
+
+class TeamLead(TeamLeadBase):
+    id: int
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True
+
+class TeamLeadRegister(TeamLeadBase):
+    password: str
+
+class TeamLeadOut(TeamLeadBase):
+    id: int
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+# -------------------------
+# TEAM
+# -------------------------
+class TeamBase(BaseModel):
+    team_lead_id: int
+
+class TeamCreate(TeamBase):
+    users_ids: Optional[List[int]] = []
+
+class TeamUpdate(BaseModel):
+    users_ids: Optional[List[int]] = None
+
+class TeamOut(BaseModel):
+    id: int
+    team_lead_id: int
+    users_ids: List[int]
+
+    class Config:
+        from_attributes = True
+
+
+# -------------------------
+# QUESTION TYPE
+# -------------------------
+class QuestionTypeBase(BaseModel):
+    type: str
+
+class QuestionTypeCreate(QuestionTypeBase):
+    pass
+
+class QuestionType(QuestionTypeBase):
+    id: int
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+# -------------------------
+# QUESTION
+# -------------------------
+class QuestionBase(BaseModel):
+    content: str
+    team_lead_id: int
+    question_type_id: int
+
+
+class Question(QuestionBase):
+    id: int
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True
+
+class QuestionCreate(QuestionBase):
+    token_type: str
+    teams_ids: List[int]
+    users_ids: Optional[List[int]] = Field(default_factory=list)
+    token_type: str
+    expires_at: Optional[datetime] = None
+
+    @field_validator("expires_at")
+    def validate_expiration(cls, v):
+        if v and v < datetime.utcnow():
+            raise ValueError("Expiration date must be in the future")
+        return v
+
+    class Config:
+        from_attributes = True
+
+
+class QuestionCreateResponse(BaseModel):
+    question: Question
+    tokens: List[str]
+
+    class Config:
+        from_attributes = True
+
+class QuestionResponse(BaseModel):
+    id: int
+    content: str
+    created_at: datetime
+    updated_at: datetime | None = None
+
+    class Config:
+        from_attributes = True
+
+# -------------------------
+# ANSWER
+# -------------------------
+class AnswerBase(BaseModel):
+    content: str
+
+class AnswerCreate(AnswerBase):
+    pass
+
+class AnswerResponse(AnswerBase):
+    id: int
+    question_id: int
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+# -------------------------
+# TOKEN
+# -------------------------
+class TokenBase(BaseModel):
+    token_value: str
+    question_id: int
+    user_id: Optional[int] = None
+    used: Optional[bool] = False
+
+class TokenCreate(TokenBase):
+    expires_at: datetime
+
+class TokenOut(BaseModel):
+    token_value: str
+    id: int
+    question_id: int
+    user_id: Optional[int]
+    used: bool
+    created_at: datetime
+    expires_at: datetime
+
+    class Config:
+        from_attributes = True
+
+#-------------------------------------------------
+#AUTHENTICATION
+class RefreshTokenRequest(BaseModel):
+    refresh_token: str

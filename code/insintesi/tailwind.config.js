@@ -1,11 +1,16 @@
-// tailwind.config.js
 export default {
-  content: [
-    "./index.html",
-    "./src/**/*.{vue,js,ts,jsx,tsx}",
-  ],
+  darkMode: "class",
+  content: ["./index.html", "./src/**/*.{vue,js,ts,jsx,tsx}"],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        brand: {
+          DEFAULT: "#2563eb",
+          light: "#3b82f6",
+          dark: "#1e3a8a",
+        },
+      },
+    },
   },
-  plugins: [],
-}
+  plugins: [require("@tailwindcss/typography")],
+};

@@ -1,30 +1,29 @@
-<script setup lang="ts">
-import HelloWorld from './components/HelloWorld.vue'
-</script>
-
 <template>
-  <div>
-    <a href="https://vite.dev" target="_blank">
-      <img src="/vite.svg" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://vuejs.org/" target="_blank">
-      <img src="./assets/vue.svg" class="logo vue" alt="Vue logo" />
-    </a>
+  <div class="min-h-screen bg-gray-50 text-gray-800">
+    <header class="bg-white shadow-md p-4 flex justify-between items-center">
+      <router-link
+        to="/"
+        class="text-2xl font-bold hover:text-blue-600 transition"
+      >
+        inSintesi
+      </router-link>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-6">
+      <router-view />
+    </main>
   </div>
-  <HelloWorld msg="Vite + Vue" />
 </template>
 
-<style scoped>
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.vue:hover {
-  filter: drop-shadow(0 0 2em #42b883aa);
+
+<script setup>
+// Dynamically loaded with routing
+</script>
+
+<style>
+body {
+  font-family: Inter, system-ui, sans-serif;
+  background-color: #f9fafb;
+  margin: 0;
 }
 </style>
