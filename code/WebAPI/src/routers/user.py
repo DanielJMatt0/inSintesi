@@ -44,6 +44,24 @@ def list_my_users(
         for u in users
     ]
 
+@router.get("/team/{team_id}", response_model=List[schemas.UserOut])
+def list_users_from_team(
+    team_id: int,
+    db: Session = Depends(get_db),
+    lead: models.TeamLead = Depends(get_current_team_lead)
+):
+    """List all users from a specific team owned by the logged-in team lead."""
+    users = crud.list_users_by_team(db, team_id, lead.id)
+    return [
+        {
+            "id": u.id,
+            "name": u.name,
+            "lastname": u.lastname,
+            "email": u.email
+        }
+        for u in users
+    ]
+
 
 @router.get("/{user_id}", response_model=schemas.UserOut)
 def get_user_endpoint(

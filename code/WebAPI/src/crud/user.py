@@ -119,3 +119,22 @@ def delete_user(db: Session, user_id: int, lead_id: int):
     db.commit()
 
     return {"message": "User deleted successfully"}
+
+def list_users_by_team(db: Session, team_id: int, lead_id: int):
+    """
+    List all users that belong to a specific team owned by the current team lead.
+    """
+    team = (
+        db.query(models.Team)
+        .filter(models.Team.id == team_id, models.Team.team_lead_id == lead_id)
+        .first()
+    )
+
+    if not team:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not authorized to access this team or team does not exist"
+        )
+
+    return team.users
+
