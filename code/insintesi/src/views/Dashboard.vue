@@ -44,11 +44,11 @@ const handleViewTopic = (id: number) => {
 </script>
 
 <template>
-    <div>
+    <div class="min-h-screen bg-gray-50">
         <!-- Header -->
         <header class="flex items-center justify-between bg-white m-12 p-4 shadow-sm">
             <div>
-                <h1 class="text-xl font-semibold text-gray-800">inSintesi dashboard</h1>
+                <h1 class="text-xl font-semibold text-gray-800">Dashboard</h1>
                 <p class="text-sm text-gray-500">
                     Logged in as
                     <span class="font-medium text-gray-700">{{ adminUser?.name }}</span>
@@ -73,10 +73,12 @@ const handleViewTopic = (id: number) => {
         <main class="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <div v-for="topic in topicStore.topics" :key="topic.id"
                 class="bg-white rounded-2xl shadow p-4 flex flex-col justify-between hover:shadow-md transition">
-                <div>
-                    <h2 class="text-lg font-semibold text-gray-800 mb-2">{{ topic.title }}</h2>
+                <div class="overflow-hidden">
+                    <h2 class="text-lg font-semibold text-gray-800 mb-2 break-words truncate-multiline">
+                        {{ topic.title }}
+                    </h2>
                     <p class="text-sm text-gray-500">
-                        Responses: {{ topic.responses?.length || 0 }}
+                        Participants: {{ topic.responses?.length || 0 }}
                     </p>
                 </div>
                 <div class="flex justify-end gap-2 mt-4">
@@ -93,23 +95,68 @@ const handleViewTopic = (id: number) => {
         </main>
 
         <!-- Add Topic Modal -->
-        <div v-if="showAddModal" @click.self="showAddModal = false"
-            class="fixed inset-0 bg-black/50 flex justify-center items-center z-50 transition">
-            <div class="bg-white p-6 rounded-2xl shadow-lg w-80">
-                <h3 class="text-lg font-semibold text-gray-800 mb-4">Add a new topic</h3>
-                <input v-model="newTopicTitle" type="text" placeholder="Enter topic question..."
-                    class="w-full border border-gray-300 rounded-lg p-2 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500" />
-                <div class="flex justify-end gap-2">
-                    <button @click="showAddModal = false"
-                        class="px-4 py-2 rounded-lg border text-gray-600 hover:bg-gray-100 transition">
-                        Cancel
-                    </button>
-                    <button @click="handleAddTopic"
-                        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
-                        Enter
-                    </button>
+        <transition name="fade-scale">
+            <div v-if="showAddModal" @click.self="showAddModal = false"
+                class="fixed inset-0 bg-black/50 flex justify-center items-center z-50 transition">
+                <div class="bg-white p-8 rounded-2xl shadow-lg w-[90%] max-w-lg animate-pop">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">
+                        Add a new topic
+                    </h3>
+                    <textarea v-model="newTopicTitle" placeholder="Enter the question or topic description..." rows="5"
+                        class="w-full border border-gray-300 rounded-lg p-3 mb-4 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                    <div class="flex justify-end gap-2">
+                        <button @click="showAddModal = false"
+                            class="px-4 py-2 rounded-lg border text-gray-600 hover:bg-gray-100 transition">
+                            Cancel
+                        </button>
+                        <button @click="handleAddTopic"
+                            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+                            Enter
+                        </button>
+                    </div>
                 </div>
             </div>
-        </div>
+        </transition>
     </div>
 </template>
+
+<style scoped>
+/* Smooth fade + scale animation */
+.fade-scale-enter-active,
+.fade-scale-leave-active {
+    transition: all 0.25s ease;
+}
+
+.fade-scale-enter-from,
+.fade-scale-leave-to {
+    opacity: 0;
+    transform: scale(0.95);
+}
+
+/* Optional pop animation for inner modal */
+@keyframes pop {
+    0% {
+        transform: scale(0.95);
+        opacity: 0;
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.animate-pop {
+    animation: pop 0.25s ease;
+}
+
+/* Multiline truncation with wrapping for long titles */
+.truncate-multiline {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    /* limit lines */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    word-break: break-word;
+}
+</style>
