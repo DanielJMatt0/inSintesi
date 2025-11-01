@@ -1,22 +1,23 @@
 """
 FastAPI router exposing the consensus analysis endpoints.
 
-Includes:
-- POST /analyze/ → runs an AI consensus analysis and stores results.
+Endpoints:
+- POST /analyze/{question_id} → runs an AI analysis if not yet generated.
+- PUT /analyze/{question_id} → re-runs AI analysis and overwrites existing report.
 - GET /analyze/report/{question_id} → retrieves the report for a question if available.
 
-This module connects the analyzer dispatcher with FastAPI,
+This module integrates the AI analyzer with FastAPI,
 handles validation, persistence, and structured responses.
 """
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 from sqlalchemy.orm import Session
-from typing import List, Optional, Any, Dict
+from typing import Optional, Any, Dict
 
 from analyzer import analyze_topic
 from db.session import SessionLocal, init_db
-from db.models.question import Question
+from db.models.question import Question, Answer
 from db.models.ai_analysis import (
     StanceAnalysis,
     OptionComparison,
@@ -25,6 +26,9 @@ from db.models.ai_analysis import (
     FeedbackAnalysis,
 )
 
+# ---------------------------------------------------------------------
+# Router setup
+# ---------------------------------------------------------------------
 router = APIRouter(prefix="/analyze", tags=["analysis"])
 
 
@@ -32,7 +36,7 @@ router = APIRouter(prefix="/analyze", tags=["analysis"])
 # Database session dependency
 # ---------------------------------------------------------------------
 def get_db():
-    """Dependency that provides a SQLAlchemy session per request."""
+    """Provides a SQLAlchemy session per request."""
     db = SessionLocal()
     try:
         yield db
@@ -41,15 +45,8 @@ def get_db():
 
 
 # ---------------------------------------------------------------------
-# Schemas
+# Response schema
 # ---------------------------------------------------------------------
-class AnalyzeRequest(BaseModel):
-    """Schema for incoming analysis requests."""
-    question_id: int = Field(..., description="ID of the existing question to analyze.")
-    topic: str = Field(..., description="The topic or question being analyzed.")
-    opinions: List[str] = Field(..., description="List of opinions, ideas, or feedback texts.")
-
-
 class AnalyzeResponse(BaseModel):
     """Schema for returning analysis results."""
     id: str
@@ -64,55 +61,30 @@ class AnalyzeResponse(BaseModel):
 
 
 # ---------------------------------------------------------------------
-# POST /analyze/ — Run analysis (requires existing question)
+# Helper — Run the analysis pipeline
 # ---------------------------------------------------------------------
-@router.post("/", response_model=AnalyzeResponse, status_code=status.HTTP_201_CREATED)
-def run_analysis(payload: AnalyzeRequest, db: Session = Depends(get_db)):
-    """
-    Run an AI consensus analysis for an existing question.
-
-    The question must already exist in the database.
-    The analysis type is determined from the question's type.
-    Once complete, the question's `report_id` is updated with the new analysis record.
-    """
-    init_db()
-
-    # -----------------------------------------------------------------
-    # 1. Check that the question exists
-    # -----------------------------------------------------------------
-    question = db.query(Question).filter(Question.id == payload.question_id).first()
-    if not question:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Question with ID {payload.question_id} not found."
-        )
-
-    # -----------------------------------------------------------------
-    # 2. Retrieve the question type from related QuestionType
-    # -----------------------------------------------------------------
-    if not question.question_type or not question.question_type.type:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Question type is missing or invalid."
-        )
+def _run_ai_analysis(db: Session, question: Question) -> Dict[str, Any]:
+    """Internal helper that executes AI analysis and persists results."""
 
     question_type = question.question_type.type
+    topic = question.content
 
-    # Prevent re-analysis if already processed
-    if question.report_id:
+    # Fetch all associated answers (as opinions)
+    answers = db.query(Answer).filter(Answer.question_id == question.id).all()
+    opinions = [a.content for a in answers]
+
+    if not opinions:
         raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail=f"Report already exists for question {payload.question_id}."
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="No opinions/answers found for this question."
         )
 
-    # -----------------------------------------------------------------
-    # 3. Run the analysis
-    # -----------------------------------------------------------------
     try:
+        # Run the appropriate AI pipeline
         result = analyze_topic(
             question_type=question_type,
-            topic=payload.topic,
-            opinions=payload.opinions,
+            topic=topic,
+            opinions=opinions,
             session=db,
             question_id=question.id,
         )
@@ -120,6 +92,25 @@ def run_analysis(payload: AnalyzeRequest, db: Session = Depends(get_db)):
         # Link the analysis record back to the question
         question.report_id = result["id"]
         db.commit()
+
+        # Separate common fields and extras
+        generic_keys = {
+            "id", "question_type", "topic", "summary",
+            "recommendation", "ai_thought", "created_at", "updated_at"
+        }
+        extra = {k: v for k, v in result.items() if k not in generic_keys}
+
+        return {
+            "id": result["id"],
+            "question_type": result["question_type"],
+            "topic": result["topic"],
+            "summary": result.get("summary"),
+            "recommendation": result.get("recommendation"),
+            "ai_thought": result.get("ai_thought"),
+            "created_at": result.get("created_at"),
+            "updated_at": result.get("updated_at"),
+            "extra": extra or None,
+        }
 
     except ValueError as exc:
         raise HTTPException(
@@ -132,26 +123,55 @@ def run_analysis(payload: AnalyzeRequest, db: Session = Depends(get_db)):
             detail=f"Analysis failed: {exc}"
         )
 
-    # -----------------------------------------------------------------
-    # 4. Structure the response
-    # -----------------------------------------------------------------
-    generic_keys = {
-        "id", "question_type", "topic", "summary", "recommendation",
-        "ai_thought", "created_at", "updated_at"
-    }
-    extra = {k: v for k, v in result.items() if k not in generic_keys}
 
-    return AnalyzeResponse(
-        id=result["id"],
-        question_type=result["question_type"],
-        topic=result["topic"],
-        summary=result.get("summary"),
-        recommendation=result.get("recommendation"),
-        ai_thought=result.get("ai_thought"),
-        created_at=result.get("created_at"),
-        updated_at=result.get("updated_at"),
-        extra=extra or None,
-    )
+# ---------------------------------------------------------------------
+# POST /analyze/{question_id} — Run analysis if not exists
+# ---------------------------------------------------------------------
+@router.post("/{question_id}", response_model=AnalyzeResponse, status_code=status.HTTP_201_CREATED)
+def run_analysis(question_id: int, db: Session = Depends(get_db)):
+    """Run AI analysis for an existing question (if not already generated)."""
+    init_db()
+
+    question = db.query(Question).filter(Question.id == question_id).first()
+    if not question:
+        raise HTTPException(status_code=404, detail="Question not found.")
+
+    if not question.question_type or not question.question_type.type:
+        raise HTTPException(status_code=400, detail="Question type not defined.")
+
+    if question.report_id:
+        raise HTTPException(
+            status_code=409,
+            detail=f"Report already exists for question {question_id}. Use PUT to update."
+        )
+
+    return _run_ai_analysis(db, question)
+
+
+# ---------------------------------------------------------------------
+# PUT /analyze/{question_id} — Force re-analysis (overwrite)
+# ---------------------------------------------------------------------
+@router.put("/{question_id}", response_model=AnalyzeResponse)
+def update_analysis(question_id: int, db: Session = Depends(get_db)):
+    """
+    Re-run the AI analysis for an existing question.
+
+    This will overwrite the current report with a new one.
+    """
+    init_db()
+
+    question = db.query(Question).filter(Question.id == question_id).first()
+    if not question:
+        raise HTTPException(status_code=404, detail="Question not found.")
+
+    if not question.question_type or not question.question_type.type:
+        raise HTTPException(status_code=400, detail="Question type not defined.")
+
+    # Optionally delete old report record before re-running
+    question.report_id = None
+    db.commit()
+
+    return _run_ai_analysis(db, question)
 
 
 # ---------------------------------------------------------------------
@@ -168,15 +188,10 @@ MODEL_MAP = {
 
 @router.get("/report/{question_id}")
 def get_report(question_id: int, db: Session = Depends(get_db)) -> Dict[str, Any]:
-    """
-    Retrieve the AI analysis report associated with a specific question.
-
-    If the report has not yet been generated, a clear message is returned
-    indicating the current state (pending or missing).
-    """
+    """Retrieve the AI analysis report for a specific question."""
     question = db.query(Question).filter(Question.id == question_id).first()
     if not question:
-        raise HTTPException(status_code=404, detail="Question not found")
+        raise HTTPException(status_code=404, detail="Question not found.")
 
     if not question.question_type or not question.question_type.type:
         raise HTTPException(status_code=400, detail="Question type not defined.")
@@ -188,7 +203,6 @@ def get_report(question_id: int, db: Session = Depends(get_db)) -> Dict[str, Any
             detail=f"Unsupported analysis type '{question.question_type.type}' for this question."
         )
 
-    # If report not yet generated
     if not question.report_id:
         return {
             "question_id": question.id,
@@ -197,17 +211,15 @@ def get_report(question_id: int, db: Session = Depends(get_db)) -> Dict[str, Any
             "message": "Analysis report not yet generated for this question."
         }
 
-    # Retrieve report
     report = db.query(model_class).filter(model_class.id == question.report_id).first()
     if not report:
         return {
             "question_id": question.id,
             "type": question.question_type.type,
             "status": "missing",
-            "message": f"Report ID {question.report_id} not found. It may not have been generated yet."
+            "message": f"Report ID {question.report_id} not found."
         }
 
-    # Convert model instance to dict
     data = report.__dict__.copy()
     data.pop("_sa_instance_state", None)
     data["question_id"] = question.id
