@@ -9,3 +9,4 @@ python-jose
 passlib
 python-multipart
 mistralai
+psycopg2-binary
