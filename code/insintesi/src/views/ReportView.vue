@@ -39,6 +39,7 @@ const components = {
   feedback_analysis: FeedbackAnalysisReport,
 };
 
+// @ts-ignore
 const componentName = computed(() => components[reportType.value] || null);
 
 onMounted(async () => {
@@ -54,6 +55,7 @@ onMounted(async () => {
     report.value = data;
     reportType.value = data.type;
   } catch (err) {
+    // @ts-ignore
     error.value = err.message;
   } finally {
     loading.value = false;
