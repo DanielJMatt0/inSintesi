@@ -65,7 +65,6 @@ class TeamLeadOut(TeamLeadBase):
 # -------------------------
 class TeamBase(BaseModel):
     name: str
-    team_lead_id: int
 
 class TeamCreate(TeamBase):
     users_ids: Optional[List[int]] = []
@@ -107,14 +106,13 @@ class QuestionType(QuestionTypeBase):
 # -------------------------
 class QuestionBase(BaseModel):
     content: str
-    team_lead_id: int
-    question_type_id: int
 
 
 class Question(QuestionBase):
     id: int
     created_at: datetime
     updated_at: datetime
+    question_type_id: int
 
     class Config:
         from_attributes = True

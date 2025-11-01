@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
 from sqlalchemy.orm import Session
 from src.db.session import get_db
 from src.auth.authentication import get_current_team_lead
@@ -9,10 +9,11 @@ router = APIRouter()
 @router.post("/", response_model=schemas.QuestionCreateResponse)
 def create_question_endpoint(
     question_data: schemas.QuestionCreate,
+    background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
     current_lead=Depends(get_current_team_lead),
 ):
-    question, tokens = crud.question.create_question(db, question_data, current_lead.id)
+    question, tokens = crud.question.create_question(db, question_data, current_lead.id, background_tasks)
     return {"question": question, "tokens": tokens}
 
 

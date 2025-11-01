@@ -7,26 +7,45 @@ import secrets
 from src import schemas
 from src.db import models
 
+from fastapi import HTTPException, BackgroundTasks
 
-def create_question(db: Session, question_data: schemas.QuestionCreate, lead_id: int):
+from src.utils.email import send_token_email
+from src.utils.question_type import get_question_type_by_content
+
+
+def create_question(
+    db: Session,
+    question_data: schemas.QuestionCreate,
+    lead_id: int,
+    background_tasks: BackgroundTasks,
+):
+    """
+    Create a new question, automatically assign its type based on content,
+    generate tokens, and optionally send emails.
+    """
+
+    # 1. Prepare base question data (exclude token-related fields)
     question_dict = question_data.dict(
         exclude={"token_type", "teams_ids", "users_ids", "expires_at"}
     )
-
     question_dict["team_lead_id"] = lead_id
 
+    # 2. Automatically determine the question type from content (returns numeric ID)
+    question_type_id = get_question_type_by_content(db, question_data.content)
+    question_dict["question_type_id"] = question_type_id
 
+    # 3. Create and add the question
     question = models.Question(**question_dict)
     db.add(question)
-    db.flush()
+    db.flush()  # flush to get the question ID before commit
 
+    # 4. Link teams if provided
     if question_data.teams_ids:
         teams = (
             db.query(models.Team)
             .filter(models.Team.id.in_(question_data.teams_ids))
             .all()
         )
-
 
         for t in teams:
             if t.team_lead_id != lead_id:
@@ -37,11 +56,11 @@ def create_question(db: Session, question_data: schemas.QuestionCreate, lead_id:
 
         question.teams.extend(teams)
 
-
+    # 5. Token management
     token_expires_at = question_data.expires_at
-
     tokens = []
 
+    # Universal token (one token for everyone)
     if question_data.token_type == "universal":
         token_value = secrets.token_urlsafe(16)
         db.add(
@@ -54,9 +73,11 @@ def create_question(db: Session, question_data: schemas.QuestionCreate, lead_id:
         )
         tokens.append(token_value)
 
+    # Individual tokens (one per user)
     elif question_data.token_type == "individual":
         user_ids_set = set(question_data.users_ids or [])
 
+        # Include users from assigned teams
         if question_data.teams_ids:
             team_users = (
                 db.query(models.User.id)
@@ -67,20 +88,32 @@ def create_question(db: Session, question_data: schemas.QuestionCreate, lead_id:
             team_user_ids = {u[0] for u in team_users}
             user_ids_set.update(team_user_ids)
 
-        for user_id in user_ids_set:
+        # Retrieve all users to generate tokens for
+        users = (
+            db.query(models.User)
+            .filter(models.User.id.in_(user_ids_set))
+            .all()
+        )
+
+        for user in users:
             token_value = secrets.token_urlsafe(16)
             db.add(
                 models.Token(
                     token_value=token_value,
                     question_id=question.id,
-                    user_id=user_id,
+                    user_id=user.id,
                     expires_at=token_expires_at,
                     used=False,
                 )
             )
             tokens.append(token_value)
 
-    # 5. salva tutto
+            # Send token email asynchronously
+            background_tasks.add_task(
+                send_token_email, user.email, token_value, question.content
+            )
+
+    # 6. Commit and refresh
     db.commit()
     db.refresh(question)
 
