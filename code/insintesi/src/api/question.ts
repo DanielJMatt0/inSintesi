@@ -18,6 +18,7 @@ export async function getAllQuestions(): Promise<QuestionResponse[]> {
  */
 export async function createQuestion(payload: QuestionCreate): Promise<QuestionCreateResponse> {
   const { data } = await apiClient.post<QuestionCreateResponse>("/question/", payload)
+  console.log(payload)
   return data
 }
 

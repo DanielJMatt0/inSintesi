@@ -44,7 +44,6 @@ export interface QuestionResponse {
 export interface QuestionCreate {
   content: string
   team_lead_id: number
-  question_type_id: number
   token_type: string
   teams_ids: number[]
   users_ids?: number[] | null

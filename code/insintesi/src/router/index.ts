@@ -6,6 +6,7 @@ import TokenAccessView from '../views/TokenAccessView.vue';
 import RespondView from '../views/RespondView.vue';
 import RespondSuccessView from '../views/RespondSuccessView.vue';
 import LoginView from '../views/LoginView.vue';
+import AddQuestionView from '../views/AddQuestionView.vue';
 import { useAuthStore } from "@/stores/authStore"
 
 const routes = [
@@ -15,6 +16,7 @@ const routes = [
     { path: '/respond/success', name: 'RespondSuccess', component: RespondSuccessView },
     { path: "/report/:questionId", name: "Report", component: ReportView, props: true, meta: { requiresAuth: true } },
     { path: "/login", name: "Login", component: LoginView },
+    { path: "/dashboard/addQuestion", name: "AddQuestion", component: AddQuestionView, meta: { requiresAuth: true } },
 ];
 
 const router = createRouter({
