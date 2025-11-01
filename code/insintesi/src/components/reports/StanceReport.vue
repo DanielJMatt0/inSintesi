@@ -64,10 +64,10 @@
 
 <script setup lang="ts">
 import ReportSection from "../ReportSection.vue";
+// @ts-ignore
 import { formatDate, useMarkdown } from "../../utils/formatters";
 import { computed } from "vue";
 import { Bar } from "vue-chartjs";
-import { ChartJS } from "../../plugins/chart";
 
 const { renderMarkdown } = useMarkdown();
 

@@ -16,7 +16,7 @@
 </template>
 
 
-<script setup>
+<script setup lang="ts">
 // Dynamically loaded with routing
 </script>
 
