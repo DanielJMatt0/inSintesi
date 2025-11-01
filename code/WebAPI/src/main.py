@@ -10,8 +10,9 @@ init_db()
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "http://localhost:5173",  # Vite dev server
-        "http://127.0.0.1:5173",
+        "http://localhost:5173",
+        "https://178.197.215.15:5173",
+        "http://178.197.215.15:5173",
     ],
     allow_credentials=True,
     allow_methods=["*"],
