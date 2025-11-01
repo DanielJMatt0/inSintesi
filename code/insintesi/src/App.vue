@@ -9,11 +9,12 @@
       </router-link>
     </header>
 
-    <main class="max-w-5xl mx-auto py-10 px-6">
+    <main class="max-w-7xl mx-auto px-6">
       <router-view />
     </main>
   </div>
 </template>
+
 
 <script setup>
 // Dynamically loaded with routing

@@ -1,9 +1,9 @@
 <template>
-  <div>
-    <!-- Topic -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-x-6 gap-y-3 p-4">
     <ReportSection
       title="Topic"
       description="Main question analyzed by participants"
+      class="rounded-xl border border-blue-200 bg-gradient-to-br from-blue-50/60 to-white shadow-sm p-5 hover:shadow-md transition-all"
     >
       <div>
         <p class="text-lg font-medium text-gray-800">
@@ -15,57 +15,62 @@
         </p>
       </div>
     </ReportSection>
-
-    <!-- Option Distribution -->
     <ReportSection
       title="Option Comparison"
       description="Comparison between available options and their support levels"
+      class="row-span-2 rounded-xl border border-purple-300 bg-gradient-to-br from-purple-50/60 to-white shadow-sm p-5 hover:shadow-md transition-all flex flex-col items-center justify-center"
     >
-      <Bar :data="chartData" :options="chartOptions" />
+      <div class="w-full max-h-[300px] h-[300px]">
+        <Bar :data="chartData" :options="chartOptions" />
+      </div>
+      <p class="mt-4 text-sm text-gray-500 text-center">
+        Total responses: {{ data.total_responses }}
+      </p>
     </ReportSection>
-
-    <!-- Reasons -->
+    <ReportSection
+      v-if="data.summary"
+      title="Summary"
+      class="rounded-xl border border-gray-200 bg-gradient-to-br from-gray-50 to-white shadow-sm p-5 hover:shadow-md transition-all"
+    >
+      <div
+        class="prose max-w-none text-gray-800"
+        v-html="renderMarkdown(data.summary)"
+      />
+    </ReportSection>
     <ReportSection
       v-if="hasReasons"
       title="Reasons Behind Choices"
       description="Key arguments and reasoning behind option preferences"
+      class="col-span-1 lg:col-span-2 rounded-xl border border-green-300 bg-gradient-to-br from-green-50/60 to-white shadow-sm p-5 hover:shadow-md transition-all"
     >
       <div class="space-y-4">
         <div
           v-for="(reasons, option) in data.reasons"
           :key="option"
-          class="bg-gray-50 rounded-lg p-4 border border-gray-200"
+          class="bg-white rounded-lg p-4 border border-gray-200"
         >
-          <p class="font-semibold text-gray-800 mb-2">
-            {{ option }}
-          </p>
+          <p class="font-semibold text-gray-800 mb-2">{{ option }}</p>
           <ul class="list-disc pl-6 text-sm text-gray-700 space-y-1">
-            <li v-for="(reason, i) in reasons" :key="i">
-              {{ reason }}
-            </li>
+            <li v-for="(reason, i) in reasons" :key="i">{{ reason }}</li>
           </ul>
         </div>
       </div>
     </ReportSection>
-
-    <!-- Summary -->
-    <ReportSection v-if="data.summary" title="Summary">
-      <div class="prose max-w-none" v-html="renderMarkdown(data.summary)" />
-    </ReportSection>
-
-    <!-- Recommendation -->
-    <ReportSection v-if="data.recommendation" title="Recommendation">
+    <ReportSection
+      v-if="data.recommendation"
+      title="Recommendation"
+      class="col-span-1 lg:col-span-2 rounded-xl border border-gray-200 bg-gradient-to-br from-gray-50 to-white shadow-sm p-5 hover:shadow-md transition-all"
+    >
       <div
         class="prose max-w-none"
         v-html="renderMarkdown(data.recommendation)"
       />
     </ReportSection>
-
-    <!-- AI Thought -->
     <ReportSection
       v-if="data.ai_thought"
       title="AI Thought"
       description="Internal reasoning trace of the AI model"
+      class="col-span-1 lg:col-span-2 rounded-xl border border-gray-200 bg-gradient-to-br from-gray-50 to-white shadow-sm p-5 hover:shadow-md transition-all"
     >
       <div class="prose max-w-none" v-html="renderMarkdown(data.ai_thought)" />
     </ReportSection>

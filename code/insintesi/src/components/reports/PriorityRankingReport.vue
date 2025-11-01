@@ -1,77 +1,73 @@
 <template>
-  <div>
-    <!-- Topic -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-x-6 gap-y-3 p-4">
     <ReportSection
       title="Topic"
       description="Main question analyzed by participants"
+      class="rounded-xl border border-blue-200 bg-gradient-to-br from-blue-50/60 to-white shadow-sm p-5 hover:shadow-md transition-all"
     >
       <div>
-        <p class="text-lg font-medium text-gray-800">
-          {{ data.topic }}
-        </p>
+        <p class="text-lg font-medium text-gray-800">{{ data.topic }}</p>
         <p class="text-sm text-gray-500 mt-1">
           Created: {{ formatDate(data.created_at) }} · Updated:
           {{ formatDate(data.updated_at) }}
         </p>
       </div>
     </ReportSection>
-
-    <!-- Priority Ranking -->
     <ReportSection
       title="Priority Ranking"
       description="Average ranking or importance score for each option"
+      class="row-span-2 rounded-xl border border-purple-300 bg-gradient-to-br from-purple-50/60 to-white shadow-sm p-5 hover:shadow-md transition-all"
     >
-      <div class="h-64">
-        <Bar :data="chartData" :options="chartOptions" />
+      <div class="relative w-full h-[400px] lg:h-[460px]">
+        <Bar
+          :data="chartData"
+          :options="chartOptions"
+        />
       </div>
 
-      <p class="mt-4 text-sm text-gray-500">
+      <p class="mt-4 text-sm text-gray-500 text-center">
         Higher bars indicate higher priority scores.
       </p>
     </ReportSection>
 
-    <!-- Top Reasons -->
     <ReportSection
       v-if="hasReasons"
       title="Top Reasons"
       description="Key explanations behind the prioritization"
+      class="rounded-xl border border-green-300 bg-gradient-to-br from-green-50/60 to-white shadow-sm p-5 hover:shadow-md transition-all"
     >
       <div class="space-y-4">
         <div
           v-for="(reasons, topic) in data.top_reasons"
           :key="topic"
-          class="bg-gray-50 rounded-lg p-4 border border-gray-200"
+          class="bg-white rounded-lg p-4 border border-green-100 shadow-sm hover:shadow-md transition"
         >
-          <p class="font-semibold text-gray-800 mb-2">
-            {{ topic }}
-          </p>
+          <p class="font-semibold text-green-700 mb-2">{{ topic }}</p>
           <ul class="list-disc pl-6 text-sm text-gray-700 space-y-1">
-            <li v-for="(reason, i) in reasons" :key="i">
-              {{ reason }}
-            </li>
+            <li v-for="(reason, i) in reasons" :key="i">{{ reason }}</li>
           </ul>
         </div>
       </div>
     </ReportSection>
-
-    <!-- Summary -->
-    <ReportSection v-if="data.summary" title="Summary">
-      <div class="prose max-w-none" v-html="renderMarkdown(data.summary)" />
+    <ReportSection
+      v-if="data.summary"
+      title="Summary"
+      class="col-span-1 lg:col-span-2 rounded-xl border border-gray-200 bg-gradient-to-br from-gray-50 to-white shadow-sm p-5 hover:shadow-md transition-all"
+    >
+      <div class="prose max-w-none text-gray-800" v-html="renderMarkdown(data.summary)" />
     </ReportSection>
-
-    <!-- Recommendation -->
-    <ReportSection v-if="data.recommendation" title="Recommendation">
-      <div
-        class="prose max-w-none"
-        v-html="renderMarkdown(data.recommendation)"
-      />
+    <ReportSection
+      v-if="data.recommendation"
+      title="Recommendation"
+      class="col-span-1 lg:col-span-2 rounded-xl border border-gray-200 bg-gradient-to-br from-gray-50 to-white shadow-sm p-5 hover:shadow-md transition-all"
+    >
+      <div class="prose max-w-none" v-html="renderMarkdown(data.recommendation)" />
     </ReportSection>
-
-    <!-- AI Thought -->
     <ReportSection
       v-if="data.ai_thought"
       title="AI Thought"
       description="Internal reasoning trace"
+      class="col-span-1 lg:col-span-2 rounded-xl border border-indigo-200 bg-gradient-to-br from-indigo-50/60 to-white shadow-sm p-5 hover:shadow-md transition-all"
     >
       <div class="prose max-w-none" v-html="renderMarkdown(data.ai_thought)" />
     </ReportSection>

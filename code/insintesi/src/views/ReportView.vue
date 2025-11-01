@@ -1,7 +1,5 @@
 <template>
   <div class="p-6">
-    <h1 class="text-3xl font-bold mb-6">Report</h1>
-
     <div v-if="loading" class="text-gray-500">Loading report...</div>
     <div v-if="error" class="text-red-500">
       {{ error }}
