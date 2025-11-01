@@ -35,10 +35,10 @@
       <!-- QR SCANNER BUTTON -->
       <button
         @click="toggleCamera"
-        class="w-full bg-gray-100 border border-gray-300 py-2 rounded-lg hover:bg-gray-200 transition"
+        class="w-full bg-gray-100 border border-gray-300 py-2 rounded-lg hover:bg-gray-200 transition mb-4"
       >
-        <span v-if="!scanning">📷 Scan QR Code</span>
-        <span v-else>❌ Stop Scanning</span>
+        <span v-if="!scanning">Scan QR Code</span>
+        <span v-else>Stop Scanning</span>
       </button>
 
       <transition name="fade">
@@ -47,6 +47,16 @@
           <p class="text-sm text-gray-500 mt-2">Point your camera at the QR code</p>
         </div>
       </transition>
+
+      <!-- LOGIN BUTTON -->
+      <div class="mt-6">
+        <button
+          @click="goToLogin"
+          class="w-full border border-blue-500 text-blue-600 py-2 rounded-lg hover:bg-blue-50 transition"
+        >
+          Login as Team Lead
+        </button>
+      </div>
     </div>
   </div>
 </template>
@@ -128,6 +138,11 @@ const onDetect = async (detectedCodes: any[]) => {
 const onError = (error: any) => {
   console.error("QR scan error:", error)
   alert("Unable to access camera. Please check permissions.")
+}
+
+// Redirect to login page
+const goToLogin = () => {
+  router.push("/login")
 }
 </script>
 

@@ -1,6 +1,6 @@
-import { defineStore } from "pinia";
-import apiClient from "../api/client";
-import type { AuthResponse } from "../api/types";
+import { defineStore } from "pinia"
+import { login, refreshToken } from "@/api/auth"
+import type { AuthResponse } from "@/api/types"
 
 export const useAuthStore = defineStore("auth", {
   state: () => ({
@@ -8,44 +8,54 @@ export const useAuthStore = defineStore("auth", {
     refreshToken: localStorage.getItem("refreshToken") || "",
   }),
 
+  getters: {
+    /**
+     * True if an access token exists
+     */
+    isAuthenticated: (state) => !!state.accessToken,
+  },
+
   actions: {
+    /**
+     * Log in and save the tokens
+     */
     async login(username: string, password: string) {
-      const params = new URLSearchParams();
-      params.append("grant_type", "");
-      params.append("username", username);
-      params.append("password", password);
-      params.append("scope", "");
-      params.append("client_id", "");
-      params.append("client_secret", "");
+      const data: AuthResponse = await login(username, password)
 
-      const { data } = await apiClient.post<AuthResponse>("/auth/token", params, {
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      });
+      this.accessToken = data.access_token
+      this.refreshToken = data.refresh_token
 
-      this.accessToken = data.access_token;
-      this.refreshToken = data.refresh_token;
-      localStorage.setItem("accessToken", this.accessToken);
-      localStorage.setItem("refreshToken", this.refreshToken);
+      localStorage.setItem("accessToken", this.accessToken)
+      localStorage.setItem("refreshToken", this.refreshToken)
     },
 
+    /**
+     * Update the access token using the refresh token
+     */
     async refreshAccessToken(): Promise<string> {
-      const params = new URLSearchParams();
-      params.append("refresh_token", this.refreshToken);
+      if (!this.refreshToken) throw new Error("Missing refresh token")
 
-      const { data } = await apiClient.post<AuthResponse>("/auth/refresh_token", params, {
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      });
-
-      this.accessToken = data.access_token;
-      localStorage.setItem("accessToken", this.accessToken);
-      return this.accessToken;
+      const data: AuthResponse = await refreshToken(this.refreshToken)
+      this.accessToken = data.access_token
+      localStorage.setItem("accessToken", this.accessToken)
+      return this.accessToken
     },
 
+    /**
+     * Logout
+     */
     logout() {
-      this.accessToken = "";
-      this.refreshToken = "";
-      localStorage.removeItem("accessToken");
-      localStorage.removeItem("refreshToken");
+      this.accessToken = ""
+      this.refreshToken = ""
+      localStorage.removeItem("accessToken")
+      localStorage.removeItem("refreshToken")
+    },
+
+    /**
+     * Check if the user is authenticated (alias getter)
+     */
+    hasValidToken(): boolean {
+      return !!this.accessToken
     },
   },
-});
+})

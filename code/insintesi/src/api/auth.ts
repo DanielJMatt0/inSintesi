@@ -22,7 +22,7 @@ export async function refreshToken(refresh_token: string): Promise<AuthResponse>
   const params = new URLSearchParams();
   params.append("refresh_token", refresh_token);
 
-  const { data } = await apiClient.post<AuthResponse>("/auth/refresh_token", params, {
+  const { data } = await apiClient.post<AuthResponse>("/auth/refresh-token", params, {
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
   });
   return data;
