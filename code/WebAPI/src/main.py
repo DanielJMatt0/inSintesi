@@ -1,10 +1,13 @@
 from fastapi import FastAPI
 from src.routers import question,auth,team,user,answer
 from src.db.session import init_db
-
+from src.sanitizer.sanitizer import SanitizerMiddleware
 
 # Create FastAPI app
 app = FastAPI(title="inSintesi API", version="1.0")
+
+# Add sanitizer middleware
+app.add_middleware(SanitizerMiddleware)
 
 # Include routers
 app.include_router(question.router, prefix="/question", tags=["question"])
