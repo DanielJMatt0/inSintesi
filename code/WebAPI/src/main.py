@@ -1,11 +1,7 @@
 from fastapi import FastAPI
-from src.database import engine
-from src.models import Base
 from src.routers import question,auth
+from src.db.session import init_db
 
-
-# Initialize database
-Base.metadata.create_all(bind=engine)
 
 # Create FastAPI app
 app = FastAPI(title="inSintesi API", version="1.0")
@@ -16,4 +12,5 @@ app.include_router(auth.router, prefix="/auth", tags=["auth"])
 
 if __name__ == "__main__":
     import uvicorn
+    init_db()
     uvicorn.run("src.main:app", host="127.0.0.1", port=8000, reload=True)

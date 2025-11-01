@@ -2,11 +2,11 @@ from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
 import secrets
 
-from src import models, schemas
+from src import schemas
+from src.db import models
 
 
 def create_question(db: Session, question_data: schemas.QuestionCreate):
-    # Creazione diretta dell’istanza SQLAlchemy dal modello Pydantic
     question_dict = question_data.dict(exclude={"token_type", "teams_ids", "users_ids"})
     question = models.Question(**question_dict)
 
@@ -33,8 +33,8 @@ def create_question(db: Session, question_data: schemas.QuestionCreate):
         if question_data.teams_ids:
             team_users = (
                 db.query(models.User.id)
-                .join(models.user_team)
-                .filter(models.user_team.c.team_id.in_(question_data.teams_ids))
+                .join(models.UserTeam, models.User.id == models.UserTeam.user_id)
+                .filter(models.UserTeam.team_id.in_(question_data.teams_ids))
                 .all()
             )
             team_user_ids = {u[0] for u in team_users}

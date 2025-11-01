@@ -4,8 +4,8 @@ from jose import JWTError, jwt
 from passlib.context import CryptContext
 from datetime import datetime, timedelta
 from sqlalchemy.orm import Session
-from src import models
-from src.database import get_db
+from src.db import models
+from src.db.session import get_db
 
 # === CONFIG ===
 SECRET_KEY = "supersecretkey"  # da spostare in variabile d'ambiente
