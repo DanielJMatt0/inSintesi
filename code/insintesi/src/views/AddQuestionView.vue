@@ -184,7 +184,7 @@ import { useAuthStore } from "@/stores/authStore"
 import { createQuestion } from "@/api/question"
 import { listTeams } from "@/api/team"
 import type { QuestionCreate } from "@/api/types"
-import type { TeamOut } from "@/api/types"
+import type { Team } from "@/api/types"
 
 const auth = useAuthStore()
 
@@ -208,11 +208,11 @@ const generatedToken = ref("")
 const showTeamModal = ref(false)
 
 // Team selection
-const teams = ref<TeamOut[]>([])
+const teams = ref<Team[]>([])
 const teamSearch = ref("")
 const filteredTeams = computed(() => {
   const search = teamSearch.value.toLowerCase()
-  return teams.value.filter((t) => String(t.id).toLowerCase().includes(search))
+  return teams.value.filter((t: any) => String(t.id).toLowerCase().includes(search))
 })
 
 // Expiration
