@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+*.pyd
+*.egg
+*.egg-info/
+dist/
+build/
+*.log
+
+# Virtual environment
+venv/
+env/
+ENV/
+.venv/
+.env/
+
+# MySQL / database
+*.db
+*.sqlite3
+
+# PyCharm / IDE
+.idea/
+*.iml
+
+# VSCode
+.vscode/
+
+# Uvicorn / FastAPI
+*.pid
+*.sock
+
+# Environment variables
+.env
+
+# Migrations
+migrations/
+alembic.ini
