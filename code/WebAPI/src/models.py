@@ -84,7 +84,7 @@ class Question(Base):
     question_type = relationship("QuestionType", back_populates="questions")
     answers = relationship("Answer", back_populates="question")
     teams = relationship("Team", secondary=team_question, back_populates="questions")
-    tokens = relationship("Token", back_populates="question")
+    tokens = relationship("Token", back_populates="question",cascade="all, delete-orphan")
 
 
 class Answer(Base):
@@ -110,5 +110,5 @@ class Token(Base):
     expires_at = Column(TIMESTAMP, server_default=text("CURRENT_TIMESTAMP"), nullable=False)
     used = Column(Boolean, default=False)
 
-    question = relationship("Question", back_populates="tokens")
+    question = relationship("Question", back_populates="tokens", passive_deletes=True)
     user = relationship("User", back_populates="tokens")

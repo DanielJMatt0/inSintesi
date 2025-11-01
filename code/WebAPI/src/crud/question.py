@@ -1,97 +1,80 @@
 from sqlalchemy.orm import Session
-from src import models, schemas
-from fastapi import HTTPException
 from datetime import datetime, timedelta
 import secrets
 
+from src import models, schemas
 
-# -------------------------
-# CREATE QUESTION (with token)
-# -------------------------
-def create_question(db: Session, question: schemas.QuestionCreate, token_type: str = "universal",
-                    users_ids: list[int] = None):
-    """
-    token_type: "universal" or "individual"
-    users_ids: list of user_id if token_type=="individual"
-    """
-    team_lead = db.query(models.TeamLead).filter(models.TeamLead.id == question.team_lead_id).first()
-    if not team_lead:
-        raise HTTPException(status_code=404, detail="TeamLead not found")
 
-    qtype = db.query(models.QuestionType).filter(models.QuestionType.id == question.question_type_id).first()
-    if not qtype:
-        raise HTTPException(status_code=404, detail="QuestionType not found")
+def create_question(db: Session, question_data: schemas.QuestionCreate):
+    # Creazione diretta dell’istanza SQLAlchemy dal modello Pydantic
+    question_dict = question_data.dict(exclude={"token_type", "teams_ids", "users_ids"})
+    question = models.Question(**question_dict)
 
-    db_question = models.Question(
-        content=question.content,
-        team_lead_id=question.team_lead_id,
-        question_type_id=question.question_type_id
-    )
-    db.add(db_question)
-    db.commit()
-    db.refresh(db_question)
+    db.add(question)
+    db.flush()
 
-    # --- GENERATE TOKEN ---
+    if question_data.teams_ids:
+        teams = db.query(models.Team).filter(models.Team.id.in_(question_data.teams_ids)).all()
+        question.teams.extend(teams)
+
     tokens = []
-
-    if token_type == "universal":
+    if question_data.token_type == "universal":
         token_value = secrets.token_urlsafe(16)
-        token = models.Token(
+        db.add(models.Token(
             token_value=token_value,
-            question_id=db_question.id,
-            expires_at=datetime.utcnow() + timedelta(days=7)
-        )
-        db.add(token)
-        tokens.append(token)
+            question_id=question.id,
+            expires_at=datetime.utcnow() + timedelta(days=7),
+            used=False
+        ))
+        tokens.append(token_value)
 
-    elif token_type == "individual":
-        if not users_ids:
-            raise HTTPException(status_code=400, detail="users_ids required for individual tokens")
-        for uid in users_ids:
-            user = db.query(models.User).filter(models.User.id == uid).first()
-            if not user:
-                raise HTTPException(status_code=404, detail=f"User {uid} not found")
+    elif question_data.token_type == "individual":
+        user_ids_set = set(question_data.users_ids or [])
+        if question_data.teams_ids:
+            team_users = (
+                db.query(models.User.id)
+                .join(models.user_team)
+                .filter(models.user_team.c.team_id.in_(question_data.teams_ids))
+                .all()
+            )
+            team_user_ids = {u[0] for u in team_users}
+            user_ids_set.update(team_user_ids)
+
+        for user_id in user_ids_set:
             token_value = secrets.token_urlsafe(16)
             token = models.Token(
                 token_value=token_value,
-                question_id=db_question.id,
-                user_id=uid,
-                expires_at=datetime.utcnow() + timedelta(days=7)
+                question_id=question.id,
+                user_id=user_id,
+                expires_at=datetime.utcnow() + timedelta(days=7),
+                used=False
             )
             db.add(token)
-            tokens.append(token)
-    else:
-        raise HTTPException(status_code=400, detail="Invalid token_type. Must be 'universal' or 'individual'")
+            tokens.append(token_value)
 
     db.commit()
+    db.refresh(question)
 
-    return {"question": db_question, "tokens": tokens}
-
-
-# -------------------------
-# GET ALL QUESTIONS
-# -------------------------
-def get_questions(db: Session, skip: int = 0, limit: int = 100):
-    return db.query(models.Question).offset(skip).limit(limit).all()
+    return question, tokens
 
 
-# -------------------------
-# GET QUESTION BY ID
-# -------------------------
-def get_question(db: Session, question_id: int):
-    question = db.query(models.Question).filter(models.Question.id == question_id).first()
-    if not question:
-        raise HTTPException(status_code=404, detail="Question not found")
+
+def get_questions(db: Session):
+    return db.query(models.Question).all()
+
+def get_question_by_id(db: Session, question_id: int):
+    question = (
+        db.query(models.Question)
+        .filter(models.Question.id == question_id)
+        .first()
+    )
     return question
 
-
-# -------------------------
-# DELETE QUESTION
-# -------------------------
 def delete_question(db: Session, question_id: int):
     question = db.query(models.Question).filter(models.Question.id == question_id).first()
     if not question:
-        raise HTTPException(status_code=404, detail="Question not found")
+        return None
+
     db.delete(question)
     db.commit()
-    return {"detail": f"Question {question_id} deleted"}
+    return True

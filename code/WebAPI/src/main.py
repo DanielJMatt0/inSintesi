@@ -11,7 +11,7 @@ Base.metadata.create_all(bind=engine)
 app = FastAPI(title="inSintesi API", version="1.0")
 
 # Include routers
-app.include_router(question.router, prefix="/question", tags=["Questions"])
+app.include_router(question.router, prefix="/question")
 
 
 if __name__ == "__main__":

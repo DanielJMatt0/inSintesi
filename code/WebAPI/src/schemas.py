@@ -1,6 +1,7 @@
 from typing import List, Optional
 from datetime import datetime
 from pydantic import BaseModel, EmailStr
+from pydantic import Field
 
 # -------------------------
 # USER
@@ -11,7 +12,7 @@ class UserBase(BaseModel):
     email: EmailStr
 
 class UserCreate(UserBase):
-    pass  # aggiungi password se vuoi gestire login/autenticazione
+    pass
 
 class User(UserBase):
     id: int
@@ -19,7 +20,7 @@ class User(UserBase):
     updated_at: datetime
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 # -------------------------
@@ -39,7 +40,7 @@ class TeamLead(TeamLeadBase):
     updated_at: datetime
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 # -------------------------
@@ -57,7 +58,7 @@ class Team(TeamBase):
     updated_at: datetime
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 # -------------------------
@@ -75,7 +76,7 @@ class QuestionType(QuestionTypeBase):
     updated_at: datetime
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 # -------------------------
@@ -86,8 +87,6 @@ class QuestionBase(BaseModel):
     team_lead_id: int
     question_type_id: int
 
-class QuestionCreate(QuestionBase):
-    pass
 
 class Question(QuestionBase):
     id: int
@@ -95,7 +94,20 @@ class Question(QuestionBase):
     updated_at: datetime
 
     class Config:
-        orm_mode = True
+        from_attributes = True
+
+class QuestionCreate(QuestionBase):
+    token_type: str
+    teams_ids: List[int]
+    users_ids: Optional[List[int]] = Field(default_factory=list)
+
+
+class QuestionCreateResponse(BaseModel):
+    question: Question
+    tokens: List[str]
+
+    class Config:
+        from_attributes = True
 
 
 # -------------------------
@@ -114,7 +126,7 @@ class Answer(AnswerBase):
     updated_at: datetime
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 # -------------------------
@@ -129,10 +141,14 @@ class TokenBase(BaseModel):
 class TokenCreate(TokenBase):
     expires_at: datetime
 
-class Token(TokenBase):
+class TokenOut(BaseModel):
+    token_value: str
     id: int
+    question_id: int
+    user_id: Optional[int]
+    used: bool
     created_at: datetime
     expires_at: datetime
 
     class Config:
-        orm_mode = True
+        from_attributes = True
