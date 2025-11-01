@@ -7,17 +7,23 @@ from pydantic import Field
 # USER
 # -------------------------
 class UserBase(BaseModel):
-    name: Optional[str]
-    lastname: Optional[str]
+    name: str
+    lastname: str
     email: EmailStr
 
-class UserCreate(UserBase):
-    pass
 
-class User(UserBase):
+class UserCreate(UserBase):
+    team_id: int  # The team to assign this user to
+
+
+class UserUpdate(BaseModel):
+    name: Optional[str] = None
+    lastname: Optional[str] = None
+    email: Optional[EmailStr] = None
+
+
+class UserOut(UserBase):
     id: int
-    created_at: datetime
-    updated_at: datetime
 
     class Config:
         from_attributes = True
