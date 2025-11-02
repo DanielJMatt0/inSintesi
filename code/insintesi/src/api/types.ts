@@ -98,3 +98,12 @@ export interface UpdateUserBody {
   lastname?: string
   email?: string
 }
+
+export interface TeamLeadOut {
+  id: number
+  name: string
+  lastname: string
+  email: string
+  created_at: string // ISO date-time
+  updated_at: string // ISO date-time
+}
