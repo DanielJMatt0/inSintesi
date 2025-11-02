@@ -12,16 +12,16 @@ import RegisterView from '@/views/RegisterView.vue';
 import { useAuthStore } from "@/stores/authStore"
 
 const routes = [
-    { path: '/', name: 'TokenAccess', component: TokenAccessView },
-    { path: '/dashboard', name: 'Dashboard', component: Dashboard, meta: { requiresAuth: true } },
-    { path: '/respond/:token', name: 'Respond', component: RespondView },
-    { path: '/respond/success', name: 'RespondSuccess', component: RespondSuccessView },
-    { path: "/dashboard/report/:questionId", name: "Report", component: ReportView, props: true, meta: { requiresAuth: true } },
-    { path: "/login", name: "Login", component: LoginView },
-    { path: "/dashboard/addQuestion", name: "AddQuestion", component: AddQuestionView, meta: { requiresAuth: true } },
-    { path: "/register", name: "Register", component: RegisterView},
-    { path: "/dashboard/teams", name: "Teams", component: TeamsView , meta: { requiresAuth: true }},
-    { path: '/dashboard/teams/:id', name: 'team-detail', component: TeamDetailView, props: true ,meta: { requiresAuth: true }},
+    { path: '/', name: 'TokenAccess', component: TokenAccessView, meta: { showNavbar: false } },
+    { path: '/dashboard', name: 'Dashboard', component: Dashboard, meta: { requiresAuth: true, showNavbar: true, title: "Dashboard" } },
+    { path: '/respond/:token', name: 'Respond', component: RespondView, meta: { showNavbar: false } },
+    { path: '/respond/success', name: 'RespondSuccess', component: RespondSuccessView, meta: { showNavbar: false } },
+    { path: "/dashboard/report/:questionId", name: "Report", component: ReportView, props: true, meta: { requiresAuth: true, showNavbar: true, title: "Report" } },
+    { path: "/login", name: "Login", component: LoginView, meta: { showNavbar: false }},
+    { path: "/dashboard/addQuestion", name: "AddQuestion", component: AddQuestionView, meta: { requiresAuth: true, showNavbar: true, title: "Add Question" } },
+    { path: "/register", name: "Register", component: RegisterView, meta: { showNavbar: false }},
+    { path: "/dashboard/teams", name: "Teams", component: TeamsView , meta: { requiresAuth: true, showNavbar: true, title: "Teams" }},
+    { path: '/dashboard/teams/:id', name: 'team-detail', component: TeamDetailView, props: true ,meta: { requiresAuth: true, showNavbar: true, title: "Team Detail" }},
 ];
 
 const router = createRouter({

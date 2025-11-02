@@ -143,33 +143,6 @@ const confirmRunAnalysis = async () => {
 
 <template>
   <div class="min-h-screen bg-gray-50 relative overflow-hidden">
-    <!-- Header -->
-    <header
-      class="flex flex-col sm:flex-row sm:items-center sm:justify-between bg-white p-4 shadow-sm gap-3 sm:gap-0"
-    >
-      <div>
-        <h1 class="text-xl font-semibold text-gray-800">Questions Dashboard</h1>
-        <p class="text-sm text-gray-500">Manage your questions and AI reports</p>
-      </div>
-
-      <div class="flex items-center gap-3">
-        <!-- Add Question -->
-        <button
-          @click="handleAddQuestion"
-          class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl transition"
-        >
-          <Plus size="18" /> Add Question
-        </button>
-
-        <!-- Logout -->
-        <button
-          @click="handleLogout"
-          class="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-xl transition"
-        >
-          <LogOut size="18" /> Logout
-        </button>
-      </div>
-    </header>
 
     <!-- Main -->
     <main class="p-6">
