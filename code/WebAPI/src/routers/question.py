@@ -1,5 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
 from sqlalchemy.orm import Session
+
+from src.crud.question import get_question_type_by_question_id
 from src.db.session import get_db
 from src.auth.authentication import get_current_team_lead
 from src import schemas, crud
@@ -47,3 +49,11 @@ def get_answer_count(
     """
     result = crud.question.get_answer_count_by_question(db, question_id, current_lead.id)
     return result
+
+@router.get("/type/{question_id}", response_model=schemas.QuestionTypeOut)
+def read_question_type(question_id: int, db: Session = Depends(get_db)):
+
+    question_type = get_question_type_by_question_id(db, question_id)
+    if not question_type:
+        raise HTTPException(status_code=404, detail="Question or QuestionType not found")
+    return question_type
