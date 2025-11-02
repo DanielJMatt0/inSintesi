@@ -170,9 +170,25 @@ def get_answer_count_by_question(db: Session, question_id: int, lead_id: int):
             detail="Question not found or not authorized"
         )
 
-    count = (
+    answers_count = (
         db.query(models.Answer)
         .filter(models.Answer.question_id == question_id)
         .count()
     )
-    return count
+
+    tokens = (
+        db.query(models.Token)
+        .filter(models.Token.question_id == question_id)
+        .all()
+    )
+
+    token_data = [
+        {"token_value": t.token_value, "expires_at": t.expires_at}
+        for t in tokens
+    ]
+
+    return {
+        "question_id": question.id,
+        "answers_count": answers_count,
+        "tokens": token_data,
+    }

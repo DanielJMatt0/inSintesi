@@ -42,7 +42,8 @@ def get_answer_count(
     current_lead=Depends(get_current_team_lead),
 ):
     """
-    Return the number of answer saved for a question.
+    Return the number of answers saved for a question,
+    including its tokens and expiration dates.
     """
-    count = crud.question.get_answer_count_by_question(db, question_id, current_lead.id)
-    return {"question_id": question_id, "answers_count": count}
+    result = crud.question.get_answer_count_by_question(db, question_id, current_lead.id)
+    return result
