@@ -10,7 +10,7 @@ import type {
  * List all users for the current logged-in user.
  */
 export async function listUsers(): Promise<User[]> {
-    const { data } = await apiClient.get("/user/")
+    const { data } = await apiClient.get<User[]>("/user/")
     return data
 }
 

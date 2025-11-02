@@ -65,7 +65,7 @@ export interface QuestionResponse {
 export interface Team {
   id: number
   name: string
-  members?: number[]
+  users_id: number[]
   created_at?: string
   updated_at?: string
 }

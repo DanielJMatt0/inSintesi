@@ -1,64 +1,72 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { listTeams, createTeam, deleteTeam, type Team } from '@/api/team'
 import { Plus, Trash } from 'lucide-vue-next'
 
+const router = useRouter()
+
+// --- STATE ---
 const teams = ref<Team[]>([])
-const loading = ref(true)
+const loading = ref(false)
 const error = ref<string | null>(null)
 const showAddModal = ref(false)
 const newTeamName = ref('')
 
-/**
- * Load all teams when component mounts.
- */
-onMounted(async () => {
-  await fetchTeams()
-})
-
-/**
- * Fetch the list of teams.
- */
+// --- FETCH TEAMS ---
 const fetchTeams = async () => {
   loading.value = true
   error.value = null
+
   try {
-    teams.value = await listTeams()
+    const data = await listTeams()
+
+    console.log('✅ Teams fetched from API:', data)
+
+    // ✅ Validazione: accetta solo array di oggetti validi
+    if (Array.isArray(data)) {
+      teams.value = data.filter(t => t && t.id && t.name)
+    } else {
+      console.warn('⚠️ Unexpected teams response format:', data)
+      teams.value = []
+    }
   } catch (err) {
-    console.error(err)
-    error.value = 'Failed to load teams.'
+    console.error('❌ Failed to fetch teams:', err)
+    error.value = 'Failed to load teams. Please try again later.'
   } finally {
     loading.value = false
   }
 }
 
-/**
- * Create a new team.
- */
+// --- ADD TEAM ---
 const handleAddTeam = async () => {
   if (!newTeamName.value.trim()) return
+
   try {
     await createTeam({ name: newTeamName.value.trim() })
     newTeamName.value = ''
     showAddModal.value = false
     await fetchTeams()
   } catch (err) {
-    console.error('Failed to create team:', err)
+    console.error('❌ Failed to create team:', err)
+    alert('Error creating team.')
   }
 }
 
-/**
- * Delete a team.
- */
+// --- DELETE TEAM ---
 const handleDeleteTeam = async (id: number) => {
   if (!confirm('Are you sure you want to delete this team?')) return
+
   try {
     await deleteTeam(id)
     await fetchTeams()
   } catch (err) {
-    console.error('Failed to delete team:', err)
+    console.error('❌ Failed to delete team:', err)
+    alert('Error deleting team.')
   }
 }
+
+onMounted(fetchTeams)
 </script>
 
 <template>
@@ -66,6 +74,7 @@ const handleDeleteTeam = async (id: number) => {
     <!-- Header -->
     <div class="flex justify-between items-center mb-6">
       <h1 class="text-2xl font-semibold text-gray-800">My Teams</h1>
+
       <button
           @click="showAddModal = true"
           class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition"
@@ -74,9 +83,14 @@ const handleDeleteTeam = async (id: number) => {
       </button>
     </div>
 
-    <!-- Loading and Error States -->
+    <!-- Loading / Error States -->
     <div v-if="loading" class="text-gray-500">Loading teams...</div>
     <div v-else-if="error" class="text-red-500">{{ error }}</div>
+
+    <!-- Empty State -->
+    <div v-else-if="!teams.length" class="text-gray-400 italic">
+      No teams yet. Click <strong>Add Team</strong> to create one.
+    </div>
 
     <!-- Teams Grid -->
     <div
@@ -89,7 +103,9 @@ const handleDeleteTeam = async (id: number) => {
           @click="$router.push({ name: 'team-detail', params: { id: team.id } })"
           class="bg-white shadow rounded-2xl p-6 flex justify-between items-center hover:shadow-md transition border border-gray-100 cursor-pointer"
       >
-        <span class="text-lg font-semibold text-gray-800">{{ team.name }}</span>
+        <span class="text-lg font-semibold text-gray-800 truncate">
+          {{ team.name }}
+        </span>
 
         <button
             @click.stop="handleDeleteTeam(team.id)"
@@ -98,7 +114,6 @@ const handleDeleteTeam = async (id: number) => {
           <Trash size="18" />
         </button>
       </div>
-
     </div>
 
     <!-- Add Team Modal -->

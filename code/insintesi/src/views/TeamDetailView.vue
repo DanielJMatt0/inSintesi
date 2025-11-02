@@ -16,31 +16,53 @@ const newTeamName = ref("")
 const loading = ref(true)
 const saving = ref(false)
 const message = ref<string | null>(null)
+const error = ref<string | null>(null)
 
 // --- USER CREATION ---
 const newUser = ref({ name: "", lastname: "", email: "" })
 const userError = ref<string | null>(null)
 const creatingUser = ref(false)
 
-onMounted(async () => {
-  await fetchTeam()
-  await fetchUsers()
-})
-
-// --- FETCH DATA ---
+// --- FETCH TEAM DATA ---
 const fetchTeam = async () => {
   loading.value = true
+  error.value = null
   try {
-    team.value = await getTeam(teamId)
-    selectedUsers.value = team.value.users_ids || []
-    newTeamName.value = team.value.name
+    const data = await getTeam(teamId)
+
+    if (!data || !data.id) {
+      throw new Error("Invalid or missing team data")
+    }
+
+    team.value = data
+    selectedUsers.value = data.users_ids || []
+    newTeamName.value = data.name || ""
+    console.log("Team fetched:", data)
+  } catch (err) {
+    console.error("Failed to fetch team:", err)
+    error.value = "Error loading team data."
   } finally {
     loading.value = false
   }
 }
 
+// --- FETCH USERS DATA ---
 const fetchUsers = async () => {
-  users.value = await listUsers()
+  try {
+    const data = await listUsers()
+
+    if (Array.isArray(data)) {
+      users.value = data.filter(u => u && u.id && u.name)
+      console.log("✅ Users fetched:", users.value)
+    } else {
+      console.warn("⚠️ Unexpected /user/ response format:", data)
+      users.value = []
+    }
+  } catch (err) {
+    console.error("❌ Failed to fetch users:", err)
+    error.value = "Error loading users."
+    users.value = []
+  }
 }
 
 // --- CREATE USER ---
@@ -62,16 +84,13 @@ const handleCreateUser = async () => {
 
   try {
     creatingUser.value = true
-    await createUser({
-      ...newUser.value,
-      team_id: teamId,
-    })
+    await createUser({ ...newUser.value, team_id: teamId })
     newUser.value = { name: "", lastname: "", email: "" }
     await fetchUsers()
     await fetchTeam()
     message.value = "User created successfully!"
   } catch (err) {
-    console.error(err)
+    console.error("❌ Error creating user:", err)
     userError.value = "Error while creating user."
   } finally {
     creatingUser.value = false
@@ -90,12 +109,18 @@ const handleSaveAll = async () => {
     message.value = "Team updated successfully!"
     await fetchTeam()
   } catch (err) {
-    console.error(err)
+    console.error("Failed to update team:", err)
     message.value = "Error while updating team."
   } finally {
     saving.value = false
   }
 }
+
+// --- ON MOUNT ---
+onMounted(async () => {
+  await fetchTeam()
+  await fetchUsers()
+})
 </script>
 
 <template>
@@ -112,18 +137,21 @@ const handleSaveAll = async () => {
             @click="router.push('/dashboard/teams')"
             class="text-blue-600 hover:text-blue-800 transition font-medium"
         >
-          ← Back
+          Back
         </button>
       </div>
 
+      <!-- LOADING / ERROR STATES -->
       <div v-if="loading" class="text-gray-600 text-center">Loading...</div>
+      <div v-else-if="error" class="text-red-600 text-center">{{ error }}</div>
 
-      <div v-else class="space-y-6">
+      <!-- MAIN CONTENT -->
+      <div v-else-if="team" class="space-y-6">
         <!-- TEAM NAME -->
         <div>
-          <label class="block text-left font-medium text-gray-700 mb-2"
-          >Team Name</label
-          >
+          <label class="block text-left font-medium text-gray-700 mb-2">
+            Team Name
+          </label>
           <input
               v-model="newTeamName"
               type="text"
@@ -199,10 +227,10 @@ const handleSaveAll = async () => {
             </label>
 
             <p
-                v-if="users.length === 0"
+                v-if="!users.length"
                 class="text-gray-400 text-sm text-center py-3"
             >
-              No users available
+              No users available — create one above.
             </p>
           </div>
         </div>
@@ -219,6 +247,11 @@ const handleSaveAll = async () => {
         <p v-if="message" class="text-green-600 text-center mt-4">
           {{ message }}
         </p>
+      </div>
+
+      <!-- EMPTY STATE -->
+      <div v-else class="text-gray-500 text-center py-6">
+        Team not found.
       </div>
     </div>
   </div>

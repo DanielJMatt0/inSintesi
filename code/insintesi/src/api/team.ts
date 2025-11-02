@@ -1,10 +1,11 @@
 import apiClient from "./client"
+import type {Team, CreateTeamBody, UpdateTeamBody, User} from "@/api/types.ts";
 
 /**
  * List all teams belonging to the current user.
  */
 export async function listTeams(): Promise<Team[]> {
-    const { data } = await apiClient.get("/team/")
+    const { data } = await apiClient.get<Team[]>("/team/")
     return data
 }
 
@@ -45,7 +46,7 @@ export async function deleteTeam(teamId: number): Promise<void> {
 /**
  * List all users from a specific team (owned by the logged-in team lead).
  */
-export async function listUsersFromTeam(teamId: number): Promise<TeamUser[]> {
+export async function listUsersFromTeam(teamId: number): Promise<User[]> {
     const { data } = await apiClient.get(`/user/team/${teamId}`)
     return data
 }
