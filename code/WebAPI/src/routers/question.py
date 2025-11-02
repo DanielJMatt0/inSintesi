@@ -34,3 +34,15 @@ def delete_question(question_id: int, db: Session = Depends(get_db), current_lea
     if not success:
         raise HTTPException(status_code=404, detail="Question not found or not authorized")
     return {"message": "Question deleted successfully"}
+
+@router.get("/answer-counter/{question_id}")
+def get_answer_count(
+    question_id: int,
+    db: Session = Depends(get_db),
+    current_lead=Depends(get_current_team_lead),
+):
+    """
+    Return the number of answer saved for a question.
+    """
+    count = crud.question.get_answer_count_by_question(db, question_id, current_lead.id)
+    return {"question_id": question_id, "answers_count": count}
