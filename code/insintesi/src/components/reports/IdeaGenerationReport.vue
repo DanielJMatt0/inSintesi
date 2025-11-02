@@ -75,6 +75,7 @@
 import ReportSection from "../ReportSection.vue";
 import { formatDate, useMarkdown } from "../../utils/formatters";
 import { computed } from "vue";
+import "@/plugins/chart.js";
 
 const { renderMarkdown } = useMarkdown();
 

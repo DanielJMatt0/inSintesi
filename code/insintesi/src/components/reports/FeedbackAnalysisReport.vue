@@ -107,6 +107,7 @@
 <script setup lang="ts">
 import ReportSection from "../ReportSection.vue";
 import { formatDate, useMarkdown } from "../../utils/formatters";
+import "@/plugins/chart.js";
 import { computed } from "vue";
 const { renderMarkdown } = useMarkdown();
 const props = defineProps({ data: { type: Object, required: true } });
