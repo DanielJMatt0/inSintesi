@@ -13,7 +13,7 @@ class User(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(20))
     lastname = Column(String(30))
-    email = Column(String(100), nullable=False, unique=True)
+    email = Column(String(100), nullable=False)
     created_at = Column(DateTime, server_default=func.now())
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
 
