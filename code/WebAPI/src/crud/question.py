@@ -3,7 +3,7 @@ from http.client import HTTPException
 from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
 import secrets
-
+from src.db.models.question import Question
 from src import schemas
 from src.db import models
 
@@ -195,7 +195,7 @@ def get_answer_count_by_question(db: Session, question_id: int, lead_id: int):
     }
 
 def get_question_type_by_question_id(db: Session, question_id: int):
-    question = db.query(schemas.Question).filter(schemas.Question.id == question_id).first()
+    question = db.query(Question).filter(Question.id == question_id).first()
     if not question:
         return None
     return question.question_type
