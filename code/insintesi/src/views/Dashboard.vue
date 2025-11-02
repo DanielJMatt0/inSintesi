@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { useTopicStore } from '@/stores/topics';
 import { Plus, LogOut, Eye, Trash } from 'lucide-vue-next';
 
 const router = useRouter();

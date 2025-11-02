@@ -76,6 +76,7 @@ export interface CreateTeamBody {
 
 export interface UpdateTeamBody {
   name?: string
+  users_ids?: number[]
 }
 
 export interface User {
