@@ -250,6 +250,8 @@ const handleSubmit = async () => {
       ? new Date(expiryDate.value).toISOString()
       : null
 
+      console.log(form.expires_at)
+
     loading.value = true
     const payload = JSON.parse(JSON.stringify(form))
     const res = await createQuestion(payload)

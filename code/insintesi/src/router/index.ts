@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
-//import Dashboard from '@/views/Dashboard.vue';
+import Dashboard from '@/views/Dashboard.vue';
 import ReportView from "@/views/ReportView.vue";
 import TokenAccessView from '../views/TokenAccessView.vue';
 import RespondView from '../views/RespondView.vue';
@@ -13,10 +13,10 @@ import { useAuthStore } from "@/stores/authStore"
 
 const routes = [
     { path: '/', name: 'TokenAccess', component: TokenAccessView },
-    //{ path: '/dashboard', name: 'Dashboard', component: Dashboard, meta: { requiresAuth: true } },
+    { path: '/dashboard', name: 'Dashboard', component: Dashboard, meta: { requiresAuth: true } },
     { path: '/respond/:token', name: 'Respond', component: RespondView },
     { path: '/respond/success', name: 'RespondSuccess', component: RespondSuccessView },
-    { path: "/report/:questionId", name: "Report", component: ReportView, props: true, meta: { requiresAuth: true } },
+    { path: "/dashboard/report/:questionId", name: "Report", component: ReportView, props: true, meta: { requiresAuth: true } },
     { path: "/login", name: "Login", component: LoginView },
     { path: "/dashboard/addQuestion", name: "AddQuestion", component: AddQuestionView, meta: { requiresAuth: true } },
     { path: "/register", name: "Register", component: RegisterView},
