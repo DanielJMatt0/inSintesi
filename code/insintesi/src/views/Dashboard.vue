@@ -2,10 +2,10 @@
 import { ref, onMounted } from "vue"
 import { useRouter } from "vue-router"
 import { useAuthStore } from "@/stores/authStore"
-import { LogOut, Brain, Eye, Trash, KeyRound, Plus } from "lucide-vue-next"
+import {  Brain, Eye, Trash, KeyRound, Plus } from "lucide-vue-next"
 import ModalConfirm from "@/components/ModalConfirm.vue"
 import ModalToken from "@/components/ModalToken.vue"
-import { getAllQuestions, deleteQuestion, getQuestionInformation } from "@/api/question"
+import { getAllQuestions, deleteQuestion, getQuestionInformation, getQuestionType } from "@/api/question"
 import { updateAnalysis } from "@/api/analysis"
 import type { QuestionResponse, AnalyzeResponse } from "@/api/types"
 import type { QuestionInformation } from "@/api/question"
@@ -51,10 +51,24 @@ const fetchQuestions = async () => {
 
 /** Fetch per-question info (answers, tokens, expiry) */
 const fetchQuestionDetails = async () => {
-  const infos = await Promise.all(
+  /*const infos = await Promise.all(
     questions.value.map((q) => getQuestionInformation(q.id).catch(() => null))
+  )*/
+ const infos = await Promise.all(
+    questions.value.map(async (q) => {
+      try {
+        const [info, typeData] = await Promise.all([
+          getQuestionInformation(q.id),
+          getQuestionType(q.id)
+        ])
+
+        return { ...info, type: typeData?.type || null }
+      } catch (err) {
+        console.error(`Error while loading question ${q.id}`, err)
+        return null
+      }
+    })
   )
-  console.log(infos)
   
   infos.forEach((info, i) => {
     const id = questions.value[i].id
@@ -187,6 +201,10 @@ const confirmRunAnalysis = async () => {
                       ).toLocaleString()
                     : "Never"
                 }}
+              </p>
+              <p v-if="questionInfo[q.id]?.type">
+                <strong>Type:</strong>
+                {{ questionInfo[q.id].type }}
               </p>
             </div>
 

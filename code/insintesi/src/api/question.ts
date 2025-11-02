@@ -31,6 +31,14 @@ export async function getQuestionById(question_id: number): Promise<QuestionResp
 }
 
 /**
+ * Get a specific question
+ */
+export async function getQuestionType(question_id: number): Promise<any> {
+  const { data } = await apiClient.get(`/question/type/${question_id}`)
+  return data
+}
+
+/**
  * Delete a question
  */
 export async function deleteQuestion(question_id: number): Promise<void> {

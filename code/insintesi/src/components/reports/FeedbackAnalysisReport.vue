@@ -8,6 +8,10 @@
     >
       <div>
         <p class="text-lg font-medium text-gray-800">{{ data.topic }}</p>
+        
+        <p v-if="data.type" class="text-sm text-gray-500 mt-1">
+          <strong>Type:</strong> {{ data.type }}
+        </p>
         <p class="text-sm text-gray-500 mt-1">
           Created: {{ formatDate(data.created_at) }} · Updated:
           {{ formatDate(data.updated_at) }}
