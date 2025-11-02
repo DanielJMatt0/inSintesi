@@ -106,6 +106,27 @@ The system effectively demonstrated:
 
 ---
 
+## Some images
+
+Landing Page
+
+![alt text](image-2.png)
+
+Answer Question Page
+
+![alt text](image-3.png)
+
+Dashboard
+
+![alt text](image.png)
+
+Example Report
+
+![alt text](image-1.png)
+
+
+
+
 ## 7. Future Work & Improvements
 
 While the MVP performed well, several enhancements are planned for future iterations:
