@@ -59,6 +59,20 @@ def update_team(db: Session, team_id: int, team_data, lead_id: int):
 
     db.commit()
     db.refresh(team)
+
+    orphan_users = (
+        db.query(models.User)
+        .outerjoin(models.UserTeam)
+        .filter(models.UserTeam.team_id == None)
+        .all()
+    )
+
+    for user in orphan_users:
+        db.delete(user)
+
+    db.commit()
+    db.refresh(team)
+
     return team
 
 

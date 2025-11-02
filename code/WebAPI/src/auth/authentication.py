@@ -1,3 +1,4 @@
+import hashlib
 from fastapi.security import OAuth2PasswordBearer
 from fastapi import Depends, HTTPException, status
 from jose import JWTError, jwt
@@ -19,11 +20,15 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")  # percorso corretto
 
 # === PASSWORD UTILS ===
-def verify_password(plain_password: str, hashed_password: str) -> bool:
-    return pwd_context.verify(plain_password, hashed_password)
-
-def get_password_hash(password: str) -> str:
+def hash_password(password: str) -> str:
+    if len(password.encode("utf-8")) > 72:
+        password = hashlib.sha256(password.encode()).hexdigest()
     return pwd_context.hash(password)
+
+def verify_password(plain_password, hashed_password):
+    if len(plain_password.encode("utf-8")) > 72:
+        plain_password = hashlib.sha256(plain_password.encode()).hexdigest()
+    return pwd_context.verify(plain_password, hashed_password)
 
 
 # === AUTHENTICATION TEAM LEAD ===

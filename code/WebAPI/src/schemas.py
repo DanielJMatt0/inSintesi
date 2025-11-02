@@ -1,5 +1,5 @@
 from typing import List, Optional
-from datetime import datetime
+from datetime import datetime, timezone
 from pydantic import BaseModel, EmailStr, field_validator
 from pydantic import Field
 
@@ -126,10 +126,12 @@ class QuestionCreate(QuestionBase):
 
     @field_validator("expires_at")
     def validate_expiration(cls, v):
-        if v and v < datetime.utcnow():
-            raise ValueError("Expiration date must be in the future")
+        if v:
+            if v.tzinfo is not None:
+                v = v.astimezone(timezone.utc).replace(tzinfo=None)
+            if v < datetime.utcnow():
+                raise ValueError("Expiration date must be in the future")
         return v
-
     class Config:
         from_attributes = True
 

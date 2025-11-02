@@ -153,3 +153,43 @@ def delete_question(db: Session, question_id: int, lead_id: int):
     db.delete(question)
     db.commit()
     return True
+
+
+def get_answer_count_by_question(db: Session, question_id: int, lead_id: int):
+    """Return the number of answers for a given question, if owned by the team lead."""
+    from src.db import models
+
+    question = (
+        db.query(models.Question)
+        .filter(models.Question.id == question_id, models.Question.team_lead_id == lead_id)
+        .first()
+    )
+    if not question:
+        raise HTTPException(
+            status_code=404,
+            detail="Question not found or not authorized"
+        )
+
+    answers_count = (
+        db.query(models.Answer)
+        .filter(models.Answer.question_id == question_id)
+        .count()
+    )
+
+    tokens = (
+        db.query(models.Token)
+        .filter(models.Token.question_id == question_id)
+        .all()
+    )
+
+    token_data = [
+        {"token_value": t.token_value, "expires_at": t.expires_at}
+        for t in tokens
+    ]
+
+    return {
+        "question_id": question.id,
+        "answers_count": answers_count,
+        "tokens": token_data,
+        "report_id": question.report_id,
+    }
