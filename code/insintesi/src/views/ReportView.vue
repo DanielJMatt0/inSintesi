@@ -15,16 +15,18 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from "vue";
+import { useRoute } from "vue-router"
 
 import StanceReport from "../components/reports/StanceReport.vue";
 import OptionComparisonReport from "../components/reports/OptionComparisonReport.vue";
 import IdeaGenerationReport from "../components/reports/IdeaGenerationReport.vue";
 import PriorityRankingReport from "../components/reports/PriorityRankingReport.vue";
 import FeedbackAnalysisReport from "../components/reports/FeedbackAnalysisReport.vue";
+import { getReport } from "@/api/analysis";
 
-const props = defineProps({
-  questionId: Number,
-});
+const route = useRoute()
+const questionId = Number(route.params.questionId) 
+console.log(questionId)
 
 const loading = ref(true);
 const error = ref(null);
@@ -45,12 +47,9 @@ const componentName = computed(() => components[reportType.value] || null);
 onMounted(async () => {
   try {
     // TODO
-    const res = await fetch(
-      `http://10.197.135.91:8000/analyze/report/${props.questionId}`,
-    );
-    if (!res.ok) throw new Error("Error while loading report");
-    const data = await res.json();
-    console.log(data);
+    const data = await getReport(questionId)
+    console.log("Report data:", data)
+
 
     report.value = data;
     reportType.value = data.type;

@@ -2,8 +2,8 @@ import axios from "axios";
 import { useAuthStore } from "../stores/authStore";
 
 const apiClient = axios.create({
-  baseURL: "insintesi.onrender.com",
-  timeout: 10000,
+  baseURL: "http://10.197.135.91:8000",
+  timeout: 30000,
 });
 
 let isRefreshing = false;

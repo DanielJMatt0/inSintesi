@@ -36,3 +36,15 @@ export async function getQuestionById(question_id: number): Promise<QuestionResp
 export async function deleteQuestion(question_id: number): Promise<void> {
   await apiClient.delete(`/question/${question_id}`)
 }
+
+/**
+ * Delete a question
+ */
+export async function getQuestionInformation(
+  question_id: number
+): Promise<QuestionInformation> {
+  const { data } = await apiClient.get<QuestionInformation>(
+    `/question/answer-counter/${question_id}`
+  )
+  return data
+}
