@@ -49,3 +49,8 @@ export async function listUsersFromTeam(teamId: number): Promise<TeamUser[]> {
     const { data } = await apiClient.get(`/user/team/${teamId}`)
     return data
 }
+
+export async function assignUsersToTeam(id: number, users_ids: number[]) {
+    const response = await apiClient.put(`/team/${id}`, { users_ids })
+    return response.data
+}
