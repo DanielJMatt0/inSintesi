@@ -54,14 +54,6 @@ def create_user(db: Session, user_data, lead_id: int):
             detail="Not authorized to add users to this team"
         )
 
-    existing_user = db.query(models.User).filter_by(email=user_data.email).first()
-    if existing_user:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail=f"User with email '{user_data.email}' already exists"
-        )
-
-
     user = models.User(
         name=user_data.name,
         lastname=user_data.lastname,
