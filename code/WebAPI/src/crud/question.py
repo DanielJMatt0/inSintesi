@@ -191,4 +191,5 @@ def get_answer_count_by_question(db: Session, question_id: int, lead_id: int):
         "question_id": question.id,
         "answers_count": answers_count,
         "tokens": token_data,
+        "report_id": question.report_id,
     }

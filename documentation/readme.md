@@ -28,7 +28,8 @@ Key objectives:
 **inSintesi** is built as a web application combining modern web technologies with an AI-powered backend.
 
 **Architecture overview:**
-- **Frontend:** Built with **Vite** and **Vue.js** for a responsive, fast, and modular interface.
+- **Frontend:** Built with **Vite** and **Vue.js** for a responsive, fast, and modular interface.  
+  *(Note: The frontend is fully functional locally but has not yet been deployed to production. Deployment is planned as part of the next development phase.)*
 - **Backend:** Implemented with **FastAPI** in **Python** for efficient request handling and API management.
 - **AI Layer:** Uses the **Mistral AI API** (`mistral-medium-latest`, version 2508, November 2025) for natural language analysis.
 - **Database / User Management:** Supports user authentication via email tokens and role-based access for team leads.
@@ -38,7 +39,7 @@ Key objectives:
 - **Languages:** Python, TypeScript  
 - **Frameworks:** FastAPI, Vue.js, Vite  
 - **AI API:** Mistral AI (`mistral-medium-latest`)  
-- **Hosting:** **Resend** (email handling), **Render** (deployment), **Neon** (database)
+- **Hosting:** **Resend** (email handling), **Render** (backend deployment), **Neon** (database)
 
 ---
 
@@ -60,7 +61,8 @@ Key objectives:
   Using prompt-engineered templates, the backend sends participant responses to Mistral AI. The model interprets the data and synthesizes themes, patterns, or rankings depending on the question type.
 
 - **Dashboard Visualization:**  
-  Results are displayed in an interactive dashboard. Each question type is visualized differently to best represent the insights (e.g., sentiment distribution, ranked priorities, summarized options).
+  Results are displayed in an interactive dashboard. Each question type is visualized differently to best represent the insights (e.g., sentiment distribution, ranked priorities, summarized options).  
+  *(The visualization layer works locally and is ready for deployment in the next iteration.)*
 
 ### 4.2 Data Flow
 1. **Question creation** by a team lead.  
@@ -86,31 +88,31 @@ Key objectives:
    Once responses are collected, the system triggers Mistral-based analysis pipelines.
 
 5. **Dashboard Overview:**  
-   The team lead can view aggregated insights — showing agreement zones, conflicting views, and summarized perspectives.
+   The team lead can view aggregated insights — showing agreement zones, conflicting views, and summarized perspectives.  
+   *(This functionality is fully implemented and tested locally.)*
 
 ---
 
 ## 6. Results & Evaluation
 
-During the hackathon, the full pipeline was successfully implemented and demonstrated.  
-All major components — authentication, AI analysis, and data visualization — functioned as intended.  
+During the hackathon, the complete backend pipeline — including authentication, question management, AI analysis, and data handling — was successfully implemented and demonstrated.  
 
-The team encountered minor challenges with frontend integration during the final phase, mainly related to data binding and layout synchronization, but these were resolved enough to ensure a complete demo.
+The frontend was fully functional locally but **not yet deployed to production** due to time limitations. Despite this, all backend and AI workflows were validated through API tests and local UI interaction.
 
-The resulting system effectively showed:
+The system effectively demonstrated:
 - Automatic adaptation to question type.
 - Accurate and interpretable AI summaries.
-- Smooth user experience for both leads and participants.
+- A clear and scalable architecture ready for deployment.
 
 ---
 
 ## 7. Future Work & Improvements
 
 While the MVP performed well, several enhancements are planned for future iterations:
+- **Frontend Deployment:** Deploy the Vue.js frontend to production and integrate it fully with the FastAPI backend.
 - **Enhanced prompt engineering:** More sophisticated analysis pipelines and fine-tuned models for improved contextual understanding.  
 - **Registration and onboarding:** Dedicated registration flow for new users and teams.  
-- **Advanced analytics:** Clustering visualization, and exportable reports.  
-- **Integration options:** Slack, Teams, or other communication tools for easier access.
+- **Advanced analytics:** Clustering visualization, exportable reports, and trend tracking over time.  
+- **Integration options:** Slack, Teams, or other collaboration tools for easier access and participation.
 
 ---
-
