@@ -7,7 +7,7 @@ from src.auth.authentication import (
     create_access_token,
     create_refresh_token,
     verify_refresh_token,
-    get_password_hash,
+    hash_password as get_password_hash,
 )
 from src import schemas
 from src.db import models
