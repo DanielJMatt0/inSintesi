@@ -1,17 +1,23 @@
-# BaselHack Code Repo Template
+# inSintesi  
+**Challenge:** Endress+Hauser – *Collective Intelligence: Building Consensus Through AI*  
 
-This is the template repository, which makes our lives (and especially the lives of the jury) easier,
-if you follow our structure.
+## Team  
+- Daniel Matt  
+- Mosè Ferrazzini  
+- Nathan Luè  
+- Gabriele Alessi  
 
-## Explanation
 
-Please make sure that everything, that is code related, goes into `code` directory.
+## Project Structure  
+- [code](./code/) → contains the project source code  
+- [documentation](./documentation/)` → contains the technical and project documentation  
 
-If you have documentation about the code (e.g. UML Diagrams, a readme etc.), that should go into the `documentation` directory.
+## Description  
+**inSintesi** is a project developed for the Endress+Hauser challenge, focused on exploring how artificial intelligence can support **collective consensus building** and **idea synthesis** within groups or organizations.  
 
-If you have assets (like videos, presentations etc.), this can go into the `assets` directory.
+The approach leverages **Natural Language Processing (NLP)** and **machine learning** techniques to analyze, cluster, and summarize contributions from multiple participants, fostering shared understanding and facilitating group decision-making.
 
-You can use the MIT license in this template. Make sure to adjust the copy right holders in the placeholder `<copyright holder>` and add every team member to it.
-You are also free to choose any other license - depending on the consensus of your team.
-
-Thanks a lot!
+## Main Objectives  
+- Support collaboration through AI tools that analyze discussions and feedback.  
+- Identify areas of agreement and disagreement within a group.  
+- Automatically generate summaries to assist collective decision-making.  
