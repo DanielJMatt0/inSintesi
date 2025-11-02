@@ -43,7 +43,7 @@ def get_question_from_token(token_value: str, db: Session = Depends(get_db)):
 
 
     if token.expires_at:
-        if token.expires_at < datetime.now(datetime.timezone.utc):
+        if token.expires_at < datetime.utcnow():
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Token has expired"
