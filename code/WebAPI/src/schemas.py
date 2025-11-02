@@ -152,6 +152,15 @@ class QuestionResponse(BaseModel):
     class Config:
         from_attributes = True
 
+class QuestionTypeOut(BaseModel):
+    id: int
+    type: str
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True
+
 # -------------------------
 # ANSWER
 # -------------------------

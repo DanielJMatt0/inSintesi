@@ -193,3 +193,9 @@ def get_answer_count_by_question(db: Session, question_id: int, lead_id: int):
         "tokens": token_data,
         "report_id": question.report_id,
     }
+
+def get_question_type_by_question_id(db: Session, question_id: int):
+    question = db.query(schemas.Question).filter(schemas.Question.id == question_id).first()
+    if not question:
+        return None
+    return question.question_type
